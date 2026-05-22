@@ -176,7 +176,9 @@
 {
   "imports": {
     "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+    "three-mesh-bvh": "https://unpkg.com/three-mesh-bvh@0.7.0/build/index.module.js",
+    "three-bvh-csg": "https://unpkg.com/three-bvh-csg@0.0.16/build/index.module.js"
   }
 }
 </script>
@@ -186,6 +188,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { STLExporter } from 'three/addons/exporters/STLExporter.js';
 import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
+import { Brush, Evaluator, SUBTRACTION, ADDITION } from 'three-bvh-csg';
 
 // ============================================================
 // Config — shared with Nexus + Hub
@@ -284,64 +287,128 @@ async function generateModelFromPrompt(prompt, presets = [], image = null) {
   return j;
 }
 
+// Geometry factory — converts one spec part into a THREE.BufferGeometry.
+// Geometry is in LOCAL space (centered at origin). Caller applies the
+// part's position/rotation onto a Brush wrapping the geometry.
+function geomFromPart(p) {
+  let geom;
+  const kind = (p.kind || "box").toLowerCase();
+  if (kind === "box" || kind === "cube") {
+    const s = p.size || [10, 10, 10];
+    geom = new THREE.BoxGeometry(s[0] || 10, s[1] || 10, s[2] || 10);
+  } else if (kind === "sphere") {
+    const r = p.radius || 10;
+    geom = new THREE.SphereGeometry(r, 32, 24);
+  } else if (kind === "cylinder") {
+    const r = p.radius || 10;
+    const h = (p.size && p.size[1]) || p.height || 10;
+    geom = new THREE.CylinderGeometry(r, r, h, 32);
+  } else if (kind === "cone") {
+    const r = p.radius || 10;
+    const h = (p.size && p.size[1]) || p.height || 10;
+    geom = new THREE.ConeGeometry(r, h, 32);
+  } else if (kind === "torus") {
+    const r = p.radius || 10;
+    const t = p.tube || 2;
+    geom = new THREE.TorusGeometry(r, t, 16, 48);
+  } else if (kind === "polyprism" || kind === "polygonprism" || kind === "polyprismatic") {
+    const r = p.radius || 10;
+    const h = (p.size && p.size[1]) || p.height || 10;
+    const sides = Math.max(3, Math.min(32, p.sides || 6));
+    geom = new THREE.CylinderGeometry(r, r, h, sides);
+  } else if (kind === "extrude") {
+    const outline = Array.isArray(p.outline) ? p.outline : [];
+    const h = (p.size && p.size[1]) || p.height || 10;
+    if (outline.length >= 3) {
+      const shape = new THREE.Shape();
+      shape.moveTo(outline[0][0], outline[0][1]);
+      for (let i = 1; i < outline.length; i++) shape.lineTo(outline[i][0], outline[i][1]);
+      shape.closePath();
+      geom = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false, curveSegments: 24 });
+      geom.rotateX(-Math.PI / 2);
+    } else {
+      geom = new THREE.BoxGeometry(10, h, 10);
+    }
+  } else {
+    const s = p.size || [10, 10, 10];
+    geom = new THREE.BoxGeometry(s[0] || 10, s[1] || 10, s[2] || 10);
+  }
+  return geom;
+}
+
+// Real CSG: unions the "add" parts then subtracts the "subtract" parts.
+// Returns a THREE.Group containing a single combined mesh. This makes
+// hollows ACTUALLY hollow — both visually and in STL export.
 function buildThreeGroupFromSpec(spec) {
   const group = new THREE.Group();
-  for (const p of spec.parts || []) {
-    let geom;
-    const kind = (p.kind || "box").toLowerCase();
-    if (kind === "box" || kind === "cube") {
-      const s = p.size || [10, 10, 10];
-      geom = new THREE.BoxGeometry(s[0] || 10, s[1] || 10, s[2] || 10);
-    } else if (kind === "sphere") {
-      const r = p.radius || 10;
-      geom = new THREE.SphereGeometry(r, 32, 24);
-    } else if (kind === "cylinder") {
-      const r = p.radius || 10;
-      const h = (p.size && p.size[1]) || p.height || 10;
-      geom = new THREE.CylinderGeometry(r, r, h, 32);
-    } else if (kind === "cone") {
-      const r = p.radius || 10;
-      const h = (p.size && p.size[1]) || p.height || 10;
-      geom = new THREE.ConeGeometry(r, h, 32);
-    } else if (kind === "torus") {
-      const r = p.radius || 10;
-      const t = p.tube || 2;
-      geom = new THREE.TorusGeometry(r, t, 16, 48);
-    } else if (kind === "polyprism" || kind === "polygonprism" || kind === "polyprismatic") {
-      // True N-sided prism — hexagon (sides:6), octagon (sides:8), etc.
-      const r = p.radius || 10;
-      const h = (p.size && p.size[1]) || p.height || 10;
-      const sides = Math.max(3, Math.min(32, p.sides || 6));
-      // CylinderGeometry with low radialSegments = a true polygon prism
-      geom = new THREE.CylinderGeometry(r, r, h, sides);
-    } else if (kind === "extrude") {
-      // Arbitrary 2D outline extruded vertically along Y
-      const outline = Array.isArray(p.outline) ? p.outline : [];
-      const h = (p.size && p.size[1]) || p.height || 10;
-      if (outline.length >= 3) {
-        const shape = new THREE.Shape();
-        shape.moveTo(outline[0][0], outline[0][1]);
-        for (let i = 1; i < outline.length; i++) shape.lineTo(outline[i][0], outline[i][1]);
-        shape.closePath();
-        geom = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false, curveSegments: 24 });
-        // Rotate so the extrude axis (Z) becomes Y (height up)
-        geom.rotateX(-Math.PI / 2);
-      } else {
-        geom = new THREE.BoxGeometry(10, h, 10);
-      }
-    } else {
-      const s = p.size || [10, 10, 10];
-      geom = new THREE.BoxGeometry(s[0] || 10, s[1] || 10, s[2] || 10);
-    }
-    const color = p.color || "#7c5cff";
-    const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.05 });
-    const mesh = new THREE.Mesh(geom, mat);
+  const parts = spec.parts || [];
+  if (parts.length === 0) return group;
+
+  const evaluator = new Evaluator();
+  evaluator.useGroups = false; // single material output
+  evaluator.consolidateGroups = true;
+  const baseColor = "#7c5cff";
+
+  // Build Brush wrappers for every part
+  const brushes = parts.map(p => {
+    const geom = geomFromPart(p);
+    const brush = new Brush(geom);
     const pos = p.position || [0, 0, 0];
-    mesh.position.set(pos[0] || 0, pos[1] || 0, pos[2] || 0);
+    brush.position.set(pos[0] || 0, pos[1] || 0, pos[2] || 0);
     if (p.rotation) {
       const r = p.rotation;
-      mesh.rotation.set(THREE.MathUtils.degToRad(r[0] || 0), THREE.MathUtils.degToRad(r[1] || 0), THREE.MathUtils.degToRad(r[2] || 0));
+      brush.rotation.set(
+        THREE.MathUtils.degToRad(r[0] || 0),
+        THREE.MathUtils.degToRad(r[1] || 0),
+        THREE.MathUtils.degToRad(r[2] || 0)
+      );
     }
+    brush.updateMatrixWorld(true);
+    brush.op = (p.op || "add").toLowerCase();
+    brush.partColor = p.color || baseColor;
+    return brush;
+  });
+
+  // Split into additive and subtractive
+  const adds = brushes.filter(b => b.op !== "subtract" && b.op !== "sub");
+  const subs = brushes.filter(b => b.op === "subtract" || b.op === "sub");
+
+  // If we have at least one additive part, do real CSG. Else just render
+  // everything as separate solids (fallback for malformed specs).
+  if (adds.length > 0) {
+    try {
+      let result = adds[0];
+      for (let i = 1; i < adds.length; i++) {
+        result = evaluator.evaluate(result, adds[i], ADDITION);
+      }
+      for (const sub of subs) {
+        result = evaluator.evaluate(result, sub, SUBTRACTION);
+      }
+      const mat = new THREE.MeshStandardMaterial({ color: adds[0].partColor || baseColor, roughness: 0.55, metalness: 0.05 });
+      const finalMesh = new THREE.Mesh(result.geometry, mat);
+      finalMesh.castShadow = true;
+      finalMesh.receiveShadow = true;
+      group.add(finalMesh);
+      return group;
+    } catch (err) {
+      console.warn("CSG failed, falling back to non-boolean render:", err);
+      // Fall through to simple render
+    }
+  }
+
+  // Fallback: render each part as a separate mesh (no boolean ops)
+  for (const b of brushes) {
+    const mat = new THREE.MeshStandardMaterial({
+      color: b.partColor || baseColor,
+      roughness: 0.55,
+      metalness: 0.05,
+      // Subtract parts get rendered as semi-transparent ghosts to signal intent
+      transparent: b.op === "subtract" || b.op === "sub",
+      opacity: (b.op === "subtract" || b.op === "sub") ? 0.35 : 1,
+    });
+    const mesh = new THREE.Mesh(b.geometry, mat);
+    mesh.position.copy(b.position);
+    mesh.rotation.copy(b.rotation);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     group.add(mesh);
