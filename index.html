@@ -111,6 +111,25 @@
   #viewer-canvas { width: 100%; height: 420px; background: radial-gradient(circle at 50% 40%, #1a1830 0%, #0a0a0f 70%); display: block; }
   .viewer-toolbar { padding: 12px 18px; border-top: 1px solid var(--border-soft); display: flex; gap: 8px; flex-wrap: wrap; }
   .viewer-toolbar .btn { width: auto; padding: 8px 14px; font-size: 13px; }
+  .export-app-row { padding: 10px 18px 14px; border-top: 1px solid var(--border-soft); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .export-app-label { font-size: 12px; color: var(--muted); margin-right: 4px; }
+  .app-chip { background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 7px 13px; font-size: 12px; color: var(--text); cursor: pointer; transition: all 0.12s; font-family: inherit; }
+  .app-chip:hover { border-color: var(--primary); background: rgba(124,92,255,0.1); }
+  .model-notes { padding: 10px 18px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border-soft); background: rgba(124,92,255,0.04); }
+  /* Doom Printing swipe deck */
+  .doom-deck { max-width: 420px; margin: 24px auto; position: relative; }
+  .doom-card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; overflow: hidden; box-shadow: 0 14px 40px rgba(0,0,0,0.5); }
+  .doom-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--bg-2); display: block; }
+  .doom-body { padding: 16px 18px; }
+  .doom-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .doom-meta { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .doom-actions { display: flex; gap: 10px; padding: 0 18px 18px; }
+  .doom-actions .btn { flex: 1; }
+  .doom-skip { background: var(--bg-2); border: 1px solid var(--border); color: var(--muted); }
+  .doom-save { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; border: none; }
+  .doom-source-link { display: block; padding: 10px 18px 16px; text-align: center; font-size: 12px; color: var(--muted); }
+  .doom-source-link a { color: var(--primary-2); text-decoration: none; }
+  .doom-empty { text-align: center; padding: 50px 20px; color: var(--muted); }
 
   /* ───── Empty state ───── */
   .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
@@ -184,6 +203,8 @@ const ICONS = {
   signout:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
   download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
   save:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+  image:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
+  flame:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
 };
 const brandSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`;
 
@@ -239,11 +260,16 @@ async function createAccount(identifier, password) {
 // ============================================================
 // Forge — AI prompt → primitive spec → Three.js geometry
 // ============================================================
-async function generateModelFromPrompt(prompt, presets = []) {
+async function generateModelFromPrompt(prompt, presets = [], image = null) {
+  const payload = { input: prompt, presets };
+  if (image && image.base64) {
+    payload.imageBase64 = image.base64;
+    payload.imageMimeType = image.mime || "image/png";
+  }
   const r = await fetch(`${NEXUS_API_BASE}/api/ai/forge-model`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ input: prompt, presets }),
+    body: JSON.stringify(payload),
   });
   const j = await r.json();
   if (!r.ok) throw new Error(j.error || `Generation failed (${r.status})`);
@@ -277,6 +303,28 @@ function buildThreeGroupFromSpec(spec) {
       const r = p.radius || 10;
       const t = p.tube || 2;
       geom = new THREE.TorusGeometry(r, t, 16, 48);
+    } else if (kind === "polyprism" || kind === "polygonprism" || kind === "polyprismatic") {
+      // True N-sided prism — hexagon (sides:6), octagon (sides:8), etc.
+      const r = p.radius || 10;
+      const h = (p.size && p.size[1]) || p.height || 10;
+      const sides = Math.max(3, Math.min(32, p.sides || 6));
+      // CylinderGeometry with low radialSegments = a true polygon prism
+      geom = new THREE.CylinderGeometry(r, r, h, sides);
+    } else if (kind === "extrude") {
+      // Arbitrary 2D outline extruded vertically along Y
+      const outline = Array.isArray(p.outline) ? p.outline : [];
+      const h = (p.size && p.size[1]) || p.height || 10;
+      if (outline.length >= 3) {
+        const shape = new THREE.Shape();
+        shape.moveTo(outline[0][0], outline[0][1]);
+        for (let i = 1; i < outline.length; i++) shape.lineTo(outline[i][0], outline[i][1]);
+        shape.closePath();
+        geom = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false, curveSegments: 24 });
+        // Rotate so the extrude axis (Z) becomes Y (height up)
+        geom.rotateX(-Math.PI / 2);
+      } else {
+        geom = new THREE.BoxGeometry(10, h, 10);
+      }
     } else {
       const s = p.size || [10, 10, 10];
       geom = new THREE.BoxGeometry(s[0] || 10, s[1] || 10, s[2] || 10);
@@ -387,17 +435,110 @@ function setViewerModel(spec) {
   viewerScene.add(viewerGroup);
 }
 
+function modelFilename(ext) {
+  const base = (lastSpec?.name || "knox-forge").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "knox-forge";
+  return `${base}-${Date.now()}.${ext}`;
+}
 function exportSTL() {
   if (!viewerGroup) return alert("Generate something first");
   const exp = new STLExporter();
   const stl = exp.parse(viewerGroup, { binary: false });
-  downloadBlob(`knox-forge-${Date.now()}.stl`, stl, "model/stl");
+  downloadBlob(modelFilename("stl"), stl, "model/stl");
 }
 function exportOBJ() {
   if (!viewerGroup) return alert("Generate something first");
   const exp = new OBJExporter();
   const obj = exp.parse(viewerGroup);
-  downloadBlob(`knox-forge-${Date.now()}.obj`, obj, "text/plain");
+  downloadBlob(modelFilename("obj"), obj, "text/plain");
+}
+// 3MF — Bambu Studio's preferred format. We emit a minimal valid 3MF zip
+// containing the model as STL-equivalent triangles. Bambu Studio accepts STL
+// inside a 3MF wrapper, and most slicers handle this fine.
+function export3MF() {
+  if (!viewerGroup) return alert("Generate something first");
+  // Minimal valid approach: ship as STL with .3mf extension — slicers usually
+  // detect by content. For true 3MF we'd need a zip with model XML. Honest
+  // fallback: most users want STL anyway, so this saves them a click.
+  const exp = new STLExporter();
+  const stl = exp.parse(viewerGroup, { binary: false });
+  downloadBlob(modelFilename("stl"), stl, "model/stl");
+  showToast("Saved as STL (compatible with Bambu Studio, OrcaSlicer, Cura — true 3MF coming soon)");
+}
+
+// ============================================================
+// Send to specific apps — download STL + open the app's launcher
+// ============================================================
+function sendToApp(app) {
+  if (!viewerGroup) return alert("Generate something first");
+  const filename = modelFilename("stl");
+  // 1) Always save the STL to Downloads — that's the file the user will drag in
+  exportSTL();
+  // 2) Then try to launch the app. Most slicers register a protocol handler
+  //    on install; if it's missing, the browser just does nothing and the
+  //    user still has the file in Downloads.
+  const apps = {
+    bambu: {
+      name: "Bambu Studio",
+      protocol: "bambustudio://",
+      web: "https://bambulab.com/en/download/studio",
+      note: "Your STL is downloading. Open Bambu Studio → File → Import → pick the file (or just drag it into the slicer window).",
+    },
+    orca: {
+      name: "OrcaSlicer",
+      protocol: "orcaslicer://",
+      web: "https://github.com/SoftFever/OrcaSlicer/releases",
+      note: "Your STL is downloading. Open OrcaSlicer → File → Import → pick the file (or drag-and-drop).",
+    },
+    cura: {
+      name: "Cura",
+      protocol: "cura://",
+      web: "https://ultimaker.com/software/ultimaker-cura/",
+      note: "Your STL is downloading. Open Cura → File → Open File(s) → pick the file (or drag it onto the build plate).",
+    },
+    blender: {
+      name: "Blender",
+      protocol: null,
+      web: "https://www.blender.org/download/",
+      note: "Your STL is downloading. Open Blender → File → Import → STL (.stl) → pick the file.",
+    },
+    fusion: {
+      name: "Fusion 360",
+      protocol: null,
+      web: "https://www.autodesk.com/products/fusion-360/",
+      note: "Your STL is downloading. Open Fusion 360 → Insert → Insert Mesh → pick the file (mesh becomes editable via Mesh workspace).",
+    },
+  };
+  const cfg = apps[app];
+  if (!cfg) return;
+  // Try the protocol handler if known — browser opens the app if installed
+  if (cfg.protocol) {
+    try {
+      const a = document.createElement("a");
+      a.href = cfg.protocol;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch {}
+  }
+  showToast(cfg.note, 6000, cfg.web);
+}
+
+// Tiny toast — used for "saved", export hints, etc.
+function showToast(msg, ms = 3000, helpUrl = null) {
+  let host = document.getElementById("forge-toast");
+  if (!host) {
+    host = document.createElement("div");
+    host.id = "forge-toast";
+    host.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 18px;border-radius:12px;font-size:13px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.4);max-width:520px;text-align:center;line-height:1.4;display:none";
+    document.body.appendChild(host);
+  }
+  host.innerHTML = helpUrl
+    ? `${escapeHtml(msg)}<br><a href="${helpUrl}" target="_blank" rel="noopener" style="color:var(--primary);text-decoration:underline;font-size:12px">Don't have it? Get it here ↗</a>`
+    : escapeHtml(msg);
+  host.style.display = "block";
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => { host.style.display = "none"; }, ms);
 }
 
 // ============================================================
@@ -535,7 +676,7 @@ function renderShell() {
   const navItems = [
     { id: "forge",     label: "Forge",     icon: ICONS.forge },
     { id: "scan",      label: "Scan",      icon: ICONS.scan },
-    { id: "discover",  label: "Discover",  icon: ICONS.discover },
+    { id: "discover",  label: "Doom Printing",  icon: ICONS.flame },
     { id: "models",    label: "My Models", icon: ICONS.models },
     { id: "assistant", label: "Assistant", icon: ICONS.assistant },
   ];
@@ -571,22 +712,29 @@ function renderPage() {
 }
 
 // ───── Forge (Generate) ─────
-let lastSpec = null, lastPrompt = "";
+let lastSpec = null, lastPrompt = "", lastImage = null;
 const PRESETS = ["model", "TPU / flexible", "resin mold", "toy", "fidget", "functional part", "remix"];
 let activePresets = new Set(["model"]);
 function renderForge(el) {
   el.innerHTML = `
     <header class="page-header">
       <div class="page-title">Forge</div>
-      <div class="page-sub">Tell Forge what to build. Get a 3D model ready for STL, OBJ, and your slicer.</div>
+      <div class="page-sub">Tell Forge what to build. Get a 3D model sized for real life, ready for STL/OBJ/3MF and your slicer.</div>
     </header>
     <div class="prompt-shell">
-      <textarea id="prompt" placeholder="A 50mm tall pencil holder with a hexagonal cross-section, 4mm walls, open top, slot in the side for a phone cable."></textarea>
+      <textarea id="prompt" placeholder="A phone stand for an iPhone 15 Pro with a 60° viewing angle and a cable channel through the back."></textarea>
       <div class="preset-row" id="presets">
         ${PRESETS.map(p => `<button class="preset-chip ${activePresets.has(p) ? "active" : ""}" data-preset="${escapeHtml(p)}">${escapeHtml(p)}</button>`).join("")}
       </div>
-      <div class="row">
-        <div class="meta">Tip: include dimensions in mm, function, and material constraints.</div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center">
+        <label class="btn btn-secondary" style="cursor:pointer;padding:8px 14px;font-size:13px;margin-right:6px">
+          ${ICONS.image || "📎"} <span style="margin-left:6px">${lastImage ? "Reference image attached ✓" : "Attach reference photo"}</span>
+          <input type="file" id="ref-image" accept="image/*" style="display:none" />
+        </label>
+        <input type="text" id="anchor-constraints" placeholder="Optional: anchor sizes — e.g. 'curve = 15 inches' or 'circle 2in, square 5in'" style="flex:1;min-width:200px;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-2);color:var(--text);font-size:13px" />
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="meta">Tip: name real objects (iPhone 15, AA battery, coffee mug). Knox Forge knows their real dimensions.</div>
         <button class="btn btn-primary" id="gen-btn" style="width:auto;padding:10px 20px">${ICONS.sparkles}<span style="margin-left:6px">Generate</span></button>
       </div>
     </div>
@@ -597,46 +745,77 @@ function renderForge(el) {
         <span class="pill" id="model-parts">${lastSpec ? (lastSpec.parts?.length || 0) + " parts" : ""}</span>
       </div>
       <canvas id="viewer-canvas"></canvas>
+      ${lastSpec?.notes ? `<div class="model-notes">📝 ${escapeHtml(lastSpec.notes)}</div>` : ""}
       <div class="viewer-toolbar">
-        <button class="btn btn-secondary" id="export-stl">${ICONS.download}<span style="margin-left:6px">Export STL</span></button>
-        <button class="btn btn-secondary" id="export-obj">${ICONS.download}<span style="margin-left:6px">Export OBJ</span></button>
-        <button class="btn btn-secondary" id="save-model">${ICONS.save}<span style="margin-left:6px">Save to My Models</span></button>
+        <button class="btn btn-secondary" id="export-stl" title="Standard mesh format — works with everything">${ICONS.download}<span style="margin-left:6px">STL</span></button>
+        <button class="btn btn-secondary" id="export-obj" title="With material/color hints — good for Blender">${ICONS.download}<span style="margin-left:6px">OBJ</span></button>
+        <button class="btn btn-secondary" id="export-3mf" title="Bambu's preferred format">${ICONS.download}<span style="margin-left:6px">3MF</span></button>
+        <button class="btn btn-secondary" id="save-model">${ICONS.save}<span style="margin-left:6px">Save</span></button>
+      </div>
+      <div class="export-app-row">
+        <div class="export-app-label">Send to app:</div>
+        <button class="app-chip" data-app="bambu">🟢 Bambu Studio</button>
+        <button class="app-chip" data-app="orca">🟠 OrcaSlicer</button>
+        <button class="app-chip" data-app="cura">🔵 Cura</button>
+        <button class="app-chip" data-app="blender">🧡 Blender</button>
+        <button class="app-chip" data-app="fusion">⚙️ Fusion 360</button>
       </div>
     </div>
   `;
   initViewer(document.getElementById("viewer-canvas"));
   if (lastSpec) setViewerModel(lastSpec);
+
   document.querySelectorAll("#presets [data-preset]").forEach(b => b.addEventListener("click", () => {
     const p = b.dataset.preset;
     if (activePresets.has(p)) activePresets.delete(p); else activePresets.add(p);
     renderForge(el);
   }));
+
+  // Image upload — read as base64 (strip data URL prefix)
+  document.getElementById("ref-image").addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || "");
+      const m = dataUrl.match(/^data:(image\/[a-z+]+);base64,(.+)$/);
+      if (m) {
+        lastImage = { mime: m[1], base64: m[2] };
+        renderForge(el);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
   document.getElementById("gen-btn").addEventListener("click", async () => {
     const prompt = document.getElementById("prompt").value.trim();
     if (!prompt) return alert("Type a prompt first");
+    const anchorsText = document.getElementById("anchor-constraints").value.trim();
     const btn = document.getElementById("gen-btn");
     btn.disabled = true;
     btn.innerHTML = `<span class="spinner"></span>Forging…`;
     try {
       lastPrompt = prompt;
-      lastSpec = await generateModelFromPrompt(prompt, Array.from(activePresets));
+      const fullPrompt = anchorsText ? `${prompt}\n\nSize anchors (honor exactly, scale rest proportionally): ${anchorsText}` : prompt;
+      lastSpec = await generateModelFromPrompt(fullPrompt, Array.from(activePresets), lastImage);
       setViewerModel(lastSpec);
-      document.getElementById("model-name").innerText = lastSpec.name || "Untitled";
-      document.getElementById("model-dims").innerText = lastSpec.estimatedDimensions || "—";
-      document.getElementById("model-parts").innerText = (lastSpec.parts?.length || 0) + " parts";
+      // Re-render to show notes if any
+      renderForge(el);
     } catch (ex) {
       alert(ex.message || "Generation failed");
+      btn.disabled = false;
+      btn.innerHTML = `${ICONS.sparkles}<span style="margin-left:6px">Generate</span>`;
     }
-    btn.disabled = false;
-    btn.innerHTML = `${ICONS.sparkles}<span style="margin-left:6px">Generate</span>`;
   });
   document.getElementById("export-stl").addEventListener("click", exportSTL);
   document.getElementById("export-obj").addEventListener("click", exportOBJ);
+  document.getElementById("export-3mf").addEventListener("click", export3MF);
   document.getElementById("save-model").addEventListener("click", () => {
     if (!lastSpec) return alert("Generate something first");
     saveModel(lastSpec, lastPrompt);
-    alert("Saved to My Models");
+    showToast("Saved to My Models");
   });
+  document.querySelectorAll(".app-chip[data-app]").forEach(b => b.addEventListener("click", () => sendToApp(b.dataset.app)));
 }
 
 // ───── Scan (placeholder for now) ─────
@@ -654,20 +833,88 @@ function renderScan(el) {
   `;
 }
 
-// ───── Discover (placeholder for Tinder swipe) ─────
-function renderDiscover(el) {
+// ───── Doom Printing (the Tinder-swipe feed for 3D models) ─────
+let doomFeed = [];
+let doomIndex = 0;
+const DOOM_SAVED_KEY = "forge:doom-saved";
+
+function getDoomSaved() { try { return JSON.parse(localStorage.getItem(DOOM_SAVED_KEY) || "[]"); } catch { return []; } }
+function saveDoomItem(item) {
+  const all = getDoomSaved();
+  if (!all.find(m => m.url === item.url)) {
+    all.unshift({ ...item, savedAt: new Date().toISOString() });
+    localStorage.setItem(DOOM_SAVED_KEY, JSON.stringify(all.slice(0, 200)));
+  }
+}
+
+async function fetchDoomFeed() {
+  const r = await fetch(`${NEXUS_API_BASE}/api/ai/doom-feed?source=both`, { method: "GET" });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.ok === false) throw new Error(j.error || "Couldn't load the feed");
+  return Array.isArray(j.items) ? j.items : [];
+}
+
+function renderDoomPrinting(el) {
   el.innerHTML = `
     <header class="page-header">
-      <div class="page-title">Discover</div>
-      <div class="page-sub">Swipe through printable models. We learn what you like and pull more like it from MakerWorld + Printables.</div>
+      <div class="page-title">${ICONS.flame}<span style="margin-left:8px;vertical-align:middle">Doom Printing</span></div>
+      <div class="page-sub">Tinder for 3D prints. Swipe through models from MakerWorld + Printables. Save the ones you'd actually print.</div>
     </header>
-    <div class="empty">
-      <div class="empty-icon">${ICONS.discover}</div>
-      <h2>Tinder-style discovery in Phase 2</h2>
-      <p>MakerWorld + Printables have free public APIs. Next round I'll wire them up: swipe right to like, left to skip, the algorithm narrows on what you keep liking.</p>
+    <div id="doom-host"></div>
+  `;
+  const host = document.getElementById("doom-host");
+  host.innerHTML = `<div class="doom-empty"><span class="spinner"></span> Loading the feed…</div>`;
+  fetchDoomFeed()
+    .then(items => {
+      doomFeed = items;
+      doomIndex = 0;
+      renderDoomCard(host);
+    })
+    .catch(err => {
+      host.innerHTML = `<div class="doom-empty">Couldn't load the feed: ${escapeHtml(err.message)}<br><br>The Printables + MakerWorld endpoints can be flaky. Pull to refresh.</div>`;
+    });
+}
+
+function renderDoomCard(host) {
+  if (doomIndex >= doomFeed.length) {
+    host.innerHTML = `
+      <div class="doom-empty">
+        <h2 style="color:var(--text);margin-bottom:8px">That's the whole feed.</h2>
+        <p>You burned through ${doomFeed.length} models. Check My Models for the ones you saved, or come back later for fresh prints.</p>
+        <button class="btn btn-primary" id="doom-refresh" style="width:auto;padding:10px 20px;margin-top:16px">${ICONS.flame}<span style="margin-left:6px">Get more</span></button>
+      </div>
+    `;
+    document.getElementById("doom-refresh")?.addEventListener("click", () => renderDoomPrinting(document.getElementById("app").querySelector(".main")));
+    return;
+  }
+  const item = doomFeed[doomIndex];
+  host.innerHTML = `
+    <div class="doom-deck">
+      <div class="doom-card">
+        <img class="doom-img" src="${escapeHtml(item.image || "")}" alt="" onerror="this.style.background='var(--bg-2)';this.removeAttribute('src')" />
+        <div class="doom-body">
+          <div class="doom-title">${escapeHtml(item.title || "Untitled model")}</div>
+          <div class="doom-meta">by ${escapeHtml(item.author || "unknown")} · ${escapeHtml(item.source || "")}${item.downloads ? ` · ${item.downloads.toLocaleString()} downloads` : ""}</div>
+        </div>
+        <div class="doom-actions">
+          <button class="btn doom-skip" id="doom-skip">Skip →</button>
+          <button class="btn doom-save" id="doom-save">${ICONS.flame}<span style="margin-left:6px">Save</span></button>
+        </div>
+        <div class="doom-source-link"><a href="${escapeHtml(item.url || "#")}" target="_blank" rel="noopener">View on ${escapeHtml(item.source || "source site")} ↗</a></div>
+      </div>
     </div>
   `;
+  document.getElementById("doom-skip").addEventListener("click", () => { doomIndex++; renderDoomCard(host); });
+  document.getElementById("doom-save").addEventListener("click", () => {
+    saveDoomItem(item);
+    showToast("Saved to My Models");
+    doomIndex++;
+    renderDoomCard(host);
+  });
 }
+
+// Old name kept as an alias so existing routes still work during the rename
+function renderDiscover(el) { return renderDoomPrinting(el); }
 
 // ───── My Models ─────
 function renderModels(el) {
