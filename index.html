@@ -119,6 +119,7 @@
   .app-chip { background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 7px 13px; font-size: 12px; color: var(--text); cursor: pointer; transition: all 0.12s; font-family: inherit; }
   .app-chip:hover { border-color: var(--primary); background: rgba(124,92,255,0.1); }
   .model-notes { padding: 10px 18px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border-soft); background: rgba(124,92,255,0.04); }
+  .anim-caption { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); color: white; padding: 10px 18px; border-radius: 999px; font-size: 13px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.4); pointer-events: none; max-width: 80%; text-align: center; z-index: 5; }
   /* Doom Printing swipe deck */
   .doom-deck { max-width: 420px; margin: 24px auto; position: relative; }
   .doom-card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; overflow: hidden; box-shadow: 0 14px 40px rgba(0,0,0,0.5); }
@@ -469,62 +470,81 @@ function export3MF() {
 }
 
 // ============================================================
-// Send to specific apps — download STL + open the app's launcher
+// Send to specific apps — Path A: Web Share API (Windows 11+/macOS 13+)
+// opens the OS native share sheet which lists installed apps that can
+// handle .stl files (Bambu Studio, OrcaSlicer, Cura, etc.). Pick once,
+// the OS remembers. True one-click open after first setup.
+// Fallback: download with clear drag-drop instructions.
 // ============================================================
-function sendToApp(app) {
+async function sendToApp(app) {
   if (!viewerGroup) return alert("Generate something first");
-  const filename = modelFilename("stl");
-  // 1) Always save the STL to Downloads — that's the file the user will drag in
-  exportSTL();
-  // 2) Then try to launch the app. Most slicers register a protocol handler
-  //    on install; if it's missing, the browser just does nothing and the
-  //    user still has the file in Downloads.
   const apps = {
     bambu: {
       name: "Bambu Studio",
-      protocol: "bambustudio://",
       web: "https://bambulab.com/en/download/studio",
-      note: "Your STL is downloading. Open Bambu Studio → File → Import → pick the file (or just drag it into the slicer window).",
+      hint: "Tip: in the share sheet, pick Bambu Studio. Windows/macOS will remember it next time.",
+      fallback: "STL saved to your Downloads folder. Open Bambu Studio and drag the file onto the build plate (or File → Import → STL).",
     },
     orca: {
       name: "OrcaSlicer",
-      protocol: "orcaslicer://",
       web: "https://github.com/SoftFever/OrcaSlicer/releases",
-      note: "Your STL is downloading. Open OrcaSlicer → File → Import → pick the file (or drag-and-drop).",
+      hint: "Tip: in the share sheet, pick OrcaSlicer.",
+      fallback: "STL saved to your Downloads folder. Open OrcaSlicer and drag the file onto the build plate.",
     },
     cura: {
       name: "Cura",
-      protocol: "cura://",
       web: "https://ultimaker.com/software/ultimaker-cura/",
-      note: "Your STL is downloading. Open Cura → File → Open File(s) → pick the file (or drag it onto the build plate).",
+      hint: "Tip: in the share sheet, pick Cura.",
+      fallback: "STL saved to your Downloads folder. Open Cura and drag the file onto the build plate.",
     },
     blender: {
       name: "Blender",
-      protocol: null,
       web: "https://www.blender.org/download/",
-      note: "Your STL is downloading. Open Blender → File → Import → STL (.stl) → pick the file.",
+      hint: "Tip: in the share sheet, pick Blender.",
+      fallback: "STL saved to your Downloads folder. In Blender: File → Import → STL.",
     },
     fusion: {
       name: "Fusion 360",
-      protocol: null,
       web: "https://www.autodesk.com/products/fusion-360/",
-      note: "Your STL is downloading. Open Fusion 360 → Insert → Insert Mesh → pick the file (mesh becomes editable via Mesh workspace).",
+      hint: "Tip: in the share sheet, pick Fusion 360.",
+      fallback: "STL saved to your Downloads folder. In Fusion 360: Insert → Insert Mesh.",
     },
   };
   const cfg = apps[app];
   if (!cfg) return;
-  // Try the protocol handler if known — browser opens the app if installed
-  if (cfg.protocol) {
+
+  // Build STL blob in-memory
+  const exp = new STLExporter();
+  const stlText = exp.parse(viewerGroup, { binary: false });
+  const filename = modelFilename("stl");
+  const file = new File([stlText], filename, { type: "model/stl" });
+
+  // Try Web Share API Level 2 (with files). Only works on https + supports + user gesture.
+  const canShareFile = typeof navigator !== "undefined"
+    && typeof navigator.canShare === "function"
+    && typeof navigator.share === "function"
+    && navigator.canShare({ files: [file] });
+
+  if (canShareFile) {
     try {
-      const a = document.createElement("a");
-      a.href = cfg.protocol;
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } catch {}
+      await navigator.share({
+        files: [file],
+        title: lastSpec?.name || "Knox Forge model",
+        text: `Open this 3D model in ${cfg.name}`,
+      });
+      // Share sheet opened. Some OSes still also save a copy; show the hint.
+      showToast(cfg.hint, 5000);
+      return;
+    } catch (err) {
+      // User canceled the share sheet (AbortError) — silent. Other errors fall through.
+      if (err && err.name === "AbortError") return;
+      // Otherwise fall through to download fallback
+    }
   }
-  showToast(cfg.note, 6000, cfg.web);
+
+  // Fallback: download + clear instructions
+  downloadBlob(filename, stlText, "model/stl");
+  showToast(cfg.fallback, 9000, cfg.web);
 }
 
 // Tiny toast — used for "saved", export hints, etc.
@@ -747,16 +767,20 @@ function renderForge(el) {
         <span class="pill" id="model-dims">${lastSpec?.estimatedDimensions || "—"}</span>
         <span class="pill" id="model-parts">${lastSpec ? (lastSpec.parts?.length || 0) + " parts" : ""}</span>
       </div>
-      <canvas id="viewer-canvas"></canvas>
+      <div style="position:relative">
+        <canvas id="viewer-canvas"></canvas>
+        <div id="anim-caption" class="anim-caption" style="display:none"></div>
+      </div>
       ${lastSpec?.notes ? `<div class="model-notes">📝 ${escapeHtml(lastSpec.notes)}</div>` : ""}
       <div class="viewer-toolbar">
+        <button class="btn btn-primary" id="see-in-action" ${!lastSpec ? "disabled" : ""} title="Watch a 3D demo of how this model is actually used">▶ <span style="margin-left:6px">See it in action</span></button>
         <button class="btn btn-secondary" id="export-stl" title="Standard mesh format — works with everything">${ICONS.download}<span style="margin-left:6px">STL</span></button>
         <button class="btn btn-secondary" id="export-obj" title="With material/color hints — good for Blender">${ICONS.download}<span style="margin-left:6px">OBJ</span></button>
         <button class="btn btn-secondary" id="export-3mf" title="Bambu's preferred format">${ICONS.download}<span style="margin-left:6px">3MF</span></button>
         <button class="btn btn-secondary" id="save-model">${ICONS.save}<span style="margin-left:6px">Save</span></button>
       </div>
       <div class="export-app-row">
-        <div class="export-app-label">Send to app:</div>
+        <div class="export-app-label">Download for:</div>
         <button class="app-chip" data-app="bambu">🟢 Bambu Studio</button>
         <button class="app-chip" data-app="orca">🟠 OrcaSlicer</button>
         <button class="app-chip" data-app="cura">🔵 Cura</button>
@@ -819,6 +843,142 @@ function renderForge(el) {
     showToast("Saved to My Models");
   });
   document.querySelectorAll(".app-chip[data-app]").forEach(b => b.addEventListener("click", () => sendToApp(b.dataset.app)));
+  document.getElementById("see-in-action")?.addEventListener("click", playSeeInAction);
+}
+
+// ============================================================
+// "See it in action" — AI-generated 3D animation showing real-world use
+// ============================================================
+let animationHelpers = [];      // current helper meshes in the scene
+let animationRAF = null;        // current requestAnimationFrame id
+
+async function playSeeInAction() {
+  if (!lastSpec) return alert("Generate something first");
+  const btn = document.getElementById("see-in-action");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Directing…`;
+  try {
+    const r = await fetch(`${NEXUS_API_BASE}/api/ai/forge-animate`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ spec: lastSpec, prompt: lastPrompt }),
+    });
+    const j = await r.json();
+    if (!r.ok || j.ok === false) throw new Error(j.error || "Couldn't generate the animation");
+    await runAnimation(j);
+  } catch (e) {
+    showToast("Animation failed: " + (e.message || "unknown error"));
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `↻ <span style="margin-left:6px">Replay</span>`;
+  }
+}
+
+function clearAnimation() {
+  if (animationRAF) cancelAnimationFrame(animationRAF);
+  animationRAF = null;
+  for (const m of animationHelpers) viewerScene?.remove(m);
+  animationHelpers = [];
+  const cap = document.getElementById("anim-caption");
+  if (cap) { cap.style.display = "none"; cap.innerText = ""; }
+}
+
+function buildHelperMesh(h) {
+  let geom;
+  const kind = (h.kind || "box").toLowerCase();
+  if (kind === "box") {
+    const s = h.size || [10, 10, 10];
+    geom = new THREE.BoxGeometry(s[0] || 10, s[1] || 10, s[2] || 10);
+  } else if (kind === "sphere") {
+    geom = new THREE.SphereGeometry(h.radius || 10, 24, 16);
+  } else if (kind === "cylinder") {
+    geom = new THREE.CylinderGeometry(h.radius || 10, h.radius || 10, h.height || 30, 24);
+  } else if (kind === "polyprism") {
+    geom = new THREE.CylinderGeometry(h.radius || 10, h.radius || 10, h.height || 30, Math.max(3, Math.min(32, h.sides || 6)));
+  } else {
+    const s = h.size || [10, 10, 10];
+    geom = new THREE.BoxGeometry(s[0] || 10, s[1] || 10, s[2] || 10);
+  }
+  const mat = new THREE.MeshStandardMaterial({ color: h.color || "#888888", roughness: 0.6, metalness: 0.1, transparent: true, opacity: 0.92 });
+  const mesh = new THREE.Mesh(geom, mat);
+  mesh.castShadow = true;
+  mesh.userData.label = h.label || "";
+  return mesh;
+}
+
+function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+async function runAnimation(script) {
+  clearAnimation();
+  if (!viewerScene) return;
+  // Build helper meshes (start hidden)
+  const helperById = {};
+  for (const h of (script.helpers || [])) {
+    const mesh = buildHelperMesh(h);
+    mesh.visible = false;
+    viewerScene.add(mesh);
+    animationHelpers.push(mesh);
+    helperById[h.id] = mesh;
+  }
+  const caption = document.getElementById("anim-caption");
+  const startedAt = performance.now();
+  const totalDuration = script.duration || 6000;
+
+  return new Promise((resolve) => {
+    function tick() {
+      const now = performance.now();
+      const elapsed = now - startedAt;
+      let anyActive = false;
+      let currentCaption = "";
+
+      for (const step of (script.steps || [])) {
+        const m = helperById[step.helperId];
+        if (!m) continue;
+        const stepStart = step.startAt || 0;
+        const stepDur = step.duration || 1500;
+        if (elapsed < stepStart) continue;
+        if (elapsed > stepStart + stepDur) {
+          // Lock to final position
+          if (step.toPosition) m.position.set(step.toPosition[0] || 0, step.toPosition[1] || 0, step.toPosition[2] || 0);
+          if (step.toRotation) m.rotation.set(THREE.MathUtils.degToRad(step.toRotation[0] || 0), THREE.MathUtils.degToRad(step.toRotation[1] || 0), THREE.MathUtils.degToRad(step.toRotation[2] || 0));
+          m.visible = true;
+          continue;
+        }
+        // Currently active step
+        m.visible = true;
+        anyActive = true;
+        currentCaption = step.caption || currentCaption;
+        const t = easeInOut(Math.min(1, Math.max(0, (elapsed - stepStart) / stepDur)));
+        const from = step.fromPosition || [0, 0, 0];
+        const to = step.toPosition || from;
+        m.position.set(from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t, from[2] + (to[2] - from[2]) * t);
+        if (step.fromRotation && step.toRotation) {
+          const fr = step.fromRotation, tr = step.toRotation;
+          m.rotation.set(
+            THREE.MathUtils.degToRad(fr[0] + (tr[0] - fr[0]) * t),
+            THREE.MathUtils.degToRad(fr[1] + (tr[1] - fr[1]) * t),
+            THREE.MathUtils.degToRad(fr[2] + (tr[2] - fr[2]) * t)
+          );
+        }
+      }
+
+      if (caption) {
+        if (currentCaption) {
+          caption.innerText = currentCaption;
+          caption.style.display = "block";
+        }
+      }
+
+      if (elapsed < totalDuration) {
+        animationRAF = requestAnimationFrame(tick);
+      } else {
+        animationRAF = null;
+        if (caption) caption.innerText = `${script.title || "Demo complete"} — click Replay to watch again`;
+        resolve();
+      }
+    }
+    animationRAF = requestAnimationFrame(tick);
+  });
 }
 
 // ───── Scan (placeholder for now) ─────
@@ -1011,6 +1171,39 @@ function renderAssistant(el) {
 // Boot
 // ============================================================
 render();
+
+// PWA: register service worker so Chrome offers "Install Knox Forge"
+// in the address bar omnibox. Required for the Web Share API +
+// file_handlers to surface Knox Forge in OS share sheets.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => { /* silent */ });
+  });
+}
+
+// Capture the install prompt so we can offer it from a button later
+let deferredInstallPrompt = null;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  // Tag body so we can show an Install banner / button if we want
+  document.body.classList.add("can-install");
+});
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  document.body.classList.remove("can-install");
+  showToast("Knox Forge installed! 'Send to Bambu' now opens your OS share sheet.");
+});
+
+async function triggerForgeInstall() {
+  if (!deferredInstallPrompt) {
+    showToast("Use Chrome's address bar → Install Knox Forge icon (looks like a monitor with a down arrow).", 7000);
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+}
 </script>
 </body>
 </html>

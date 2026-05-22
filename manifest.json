@@ -3,10 +3,31 @@
   "short_name": "Forge",
   "description": "3D modeling and printing, modeled by AI.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#0a0a0f",
+  "orientation": "any",
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "share_target": {
+    "action": "/?share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        { "name": "model", "accept": ["model/stl", "model/obj", ".stl", ".obj", ".3mf"] }
+      ]
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/?file-handler",
+      "accept": {
+        "model/stl": [".stl"],
+        "model/obj": [".obj"]
+      }
+    }
   ]
 }
