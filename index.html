@@ -179,6 +179,27 @@
   .model-card-prompt { font-size: 11px; color: var(--muted); line-height: 1.4; min-height: 30px; }
   .model-card-meta { font-size: 10px; color: var(--muted-2); margin-bottom: 8px; }
   .model-card-open { width: 100%; padding: 9px; font-size: 12px; }
+  /* Print info panel */
+  .print-info { padding: 14px 18px; border-top: 1px solid var(--border-soft); background: rgba(124,92,255,0.03); }
+  .print-info.empty { display: flex; justify-content: center; padding: 18px; }
+  .print-info-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 14px; }
+  .print-info-stat { display: flex; flex-direction: column; gap: 2px; }
+  .pi-label { font-size: 11px; color: var(--muted-2); text-transform: uppercase; letter-spacing: 0.4px; }
+  .pi-val { font-size: 16px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+  .print-info-footer { font-size: 11px; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-soft); }
+  .link-btn { background: none; border: none; color: var(--primary-2); cursor: pointer; padding: 0; font-size: inherit; font-family: inherit; text-decoration: underline; }
+  .link-btn:hover { color: var(--primary); }
+  /* Modal — printer / material pickers */
+  .forge-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); z-index: 1000; display: grid; place-items: center; padding: 20px; }
+  .forge-modal-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 24px; max-width: 720px; width: 100%; max-height: 86vh; overflow-y: auto; }
+  .forge-modal-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .forge-modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+  .printer-grid, .material-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+  .printer-card, .material-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; cursor: pointer; text-align: left; font-family: inherit; transition: all 0.12s; color: var(--text); }
+  .printer-card:hover, .material-card:hover { border-color: var(--primary); background: rgba(124,92,255,0.08); }
+  .printer-card.active, .material-card.active { border-color: var(--primary); background: rgba(124,92,255,0.15); }
+  .printer-card-name, .material-card-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+  .printer-card-meta, .material-card-meta { font-size: 11px; color: var(--muted); }
   /* MOBILE RESPONSIVE — collapse sidebar to bottom-tab nav on narrow screens */
   @media (max-width: 780px) {
     .shell { flex-direction: column-reverse; }
@@ -854,6 +875,229 @@ function showToast(msg, ms = 3000, helpUrl = null) {
 // ============================================================
 // Saved models (localStorage for now)
 // ============================================================
+// ============================================================
+// Print estimates — volume, weight, time, cost per printer profile
+// ============================================================
+const PRINTER_PROFILES = {
+  "bambu-x1c":    { name: "Bambu Lab X1C",      bedX: 256, bedY: 256, bedZ: 256, flowRate: 25, layerHeight: 0.2, multiplier: 1.0 },
+  "bambu-p1s":    { name: "Bambu Lab P1S",      bedX: 256, bedY: 256, bedZ: 256, flowRate: 22, layerHeight: 0.2, multiplier: 1.1 },
+  "bambu-p1p":    { name: "Bambu Lab P1P",      bedX: 256, bedY: 256, bedZ: 256, flowRate: 20, layerHeight: 0.2, multiplier: 1.1 },
+  "bambu-a1":     { name: "Bambu Lab A1",       bedX: 256, bedY: 256, bedZ: 256, flowRate: 18, layerHeight: 0.2, multiplier: 1.15 },
+  "bambu-a1mini": { name: "Bambu Lab A1 mini",  bedX: 180, bedY: 180, bedZ: 180, flowRate: 16, layerHeight: 0.2, multiplier: 1.15 },
+  "bambu-h2d":    { name: "Bambu Lab H2D",      bedX: 350, bedY: 320, bedZ: 325, flowRate: 30, layerHeight: 0.2, multiplier: 0.95 },
+  "prusa-mk4":    { name: "Prusa MK4",          bedX: 250, bedY: 210, bedZ: 220, flowRate: 14, layerHeight: 0.2, multiplier: 1.4 },
+  "prusa-mini":   { name: "Prusa Mini+",        bedX: 180, bedY: 180, bedZ: 180, flowRate: 10, layerHeight: 0.2, multiplier: 1.6 },
+  "ender-3":      { name: "Creality Ender 3",   bedX: 220, bedY: 220, bedZ: 250, flowRate: 7,  layerHeight: 0.2, multiplier: 2.2 },
+  "ender-3v3":    { name: "Creality Ender 3 V3", bedX: 220, bedY: 220, bedZ: 250, flowRate: 18, layerHeight: 0.2, multiplier: 1.2 },
+  "voron-24":     { name: "Voron 2.4",          bedX: 300, bedY: 300, bedZ: 300, flowRate: 28, layerHeight: 0.2, multiplier: 0.95 },
+  "elegoo-mars":  { name: "Elegoo Mars (resin)", bedX: 143, bedY: 89, bedZ: 175, flowRate: 0, layerHeight: 0.05, multiplier: 0, resin: true },
+  "generic":      { name: "Generic FDM",        bedX: 220, bedY: 220, bedZ: 250, flowRate: 12, layerHeight: 0.2, multiplier: 1.4 },
+};
+const MATERIALS = {
+  pla:  { name: "PLA",  density: 1.24, costPerKg: 22 },
+  petg: { name: "PETG", density: 1.27, costPerKg: 25 },
+  abs:  { name: "ABS",  density: 1.04, costPerKg: 22 },
+  asa:  { name: "ASA",  density: 1.07, costPerKg: 30 },
+  tpu:  { name: "TPU",  density: 1.21, costPerKg: 35 },
+  pacf: { name: "PA-CF", density: 1.16, costPerKg: 85 },
+  resin: { name: "Resin", density: 1.10, costPerKg: 45 },
+};
+const FORGE_PRINTER_KEY = "forge:printer";
+const FORGE_MATERIAL_KEY = "forge:material";
+
+function getPrinterProfile() {
+  const id = localStorage.getItem(FORGE_PRINTER_KEY);
+  return PRINTER_PROFILES[id] ? { id, ...PRINTER_PROFILES[id] } : null;
+}
+function setPrinterProfile(id) {
+  if (PRINTER_PROFILES[id]) localStorage.setItem(FORGE_PRINTER_KEY, id);
+}
+function getMaterial() {
+  const id = localStorage.getItem(FORGE_MATERIAL_KEY) || "pla";
+  return { id, ...(MATERIALS[id] || MATERIALS.pla) };
+}
+function setMaterial(id) {
+  if (MATERIALS[id]) localStorage.setItem(FORGE_MATERIAL_KEY, id);
+}
+
+// Compute volume (mm³) of one primitive part. Treats subtract as negative.
+function partVolume(p) {
+  const kind = (p.kind || "box").toLowerCase();
+  let v = 0;
+  if (kind === "box" || kind === "cube") {
+    const s = p.size || [10, 10, 10];
+    v = (s[0] || 0) * (s[1] || 0) * (s[2] || 0);
+  } else if (kind === "sphere") {
+    const r = p.radius || 0;
+    v = (4 / 3) * Math.PI * Math.pow(r, 3);
+  } else if (kind === "cylinder") {
+    const r = p.radius || 0;
+    const h = (p.size && p.size[1]) || p.height || 0;
+    v = Math.PI * r * r * h;
+  } else if (kind === "cone") {
+    const r = p.radius || 0;
+    const h = (p.size && p.size[1]) || p.height || 0;
+    v = (1 / 3) * Math.PI * r * r * h;
+  } else if (kind === "torus") {
+    const R = p.radius || 0;
+    const t = p.tube || 0;
+    v = 2 * Math.PI * Math.PI * R * t * t;
+  } else if (kind === "polyprism" || kind === "polygonprism") {
+    const r = p.radius || 0;
+    const h = (p.size && p.size[1]) || p.height || 0;
+    const sides = Math.max(3, Math.min(32, p.sides || 6));
+    // Regular polygon area = 0.5 × n × r² × sin(2π/n)
+    const area = 0.5 * sides * r * r * Math.sin((2 * Math.PI) / sides);
+    v = area * h;
+  } else if (kind === "extrude") {
+    const outline = Array.isArray(p.outline) ? p.outline : [];
+    const h = (p.size && p.size[1]) || p.height || 0;
+    if (outline.length >= 3) {
+      // Shoelace for arbitrary polygon
+      let area = 0;
+      for (let i = 0; i < outline.length; i++) {
+        const j = (i + 1) % outline.length;
+        area += (outline[i][0] || 0) * (outline[j][1] || 0);
+        area -= (outline[j][0] || 0) * (outline[i][1] || 0);
+      }
+      v = Math.abs(area) * 0.5 * h;
+    }
+  }
+  return (p.op === "subtract" || p.op === "sub") ? -v : v;
+}
+
+function specTotalVolumeMm3(spec) {
+  const parts = (spec && spec.parts) || [];
+  let total = 0;
+  for (const p of parts) total += partVolume(p);
+  return Math.max(0, total);
+}
+
+function estimatePrint(spec) {
+  if (!spec) return null;
+  const printer = getPrinterProfile();
+  const material = getMaterial();
+  const volMm3 = specTotalVolumeMm3(spec);
+  const volCm3 = volMm3 / 1000;
+  const weightG = volCm3 * material.density;
+  const cost = (weightG / 1000) * material.costPerKg;
+  // Filament length estimate (1.75mm filament, area = π × 0.875² ≈ 2.405 mm²)
+  const filamentLengthM = volMm3 / 2.405 / 1000;
+
+  let timeMinutes = null;
+  if (printer && printer.flowRate > 0) {
+    // Pure extrusion time
+    const extrusionSec = volMm3 / printer.flowRate;
+    // Add overhead: travel + heating + retracts + slowing on perimeters
+    const overhead = printer.multiplier || 1.2;
+    timeMinutes = (extrusionSec * overhead) / 60;
+  } else if (printer && printer.resin) {
+    // Rough resin estimate: 5 sec per layer + flow time
+    const heightMm = (spec.parts || []).reduce((m, p) => Math.max(m, (p.position?.[1] || 0) + ((p.size?.[1] || p.height || 0) / 2)), 0);
+    const layers = Math.max(1, Math.ceil(heightMm / (printer.layerHeight || 0.05)));
+    timeMinutes = (layers * 7) / 60;
+  }
+  return { volMm3, volCm3, weightG, cost, filamentLengthM, timeMinutes, printer, material };
+}
+
+function formatTime(mins) {
+  if (!isFinite(mins) || mins <= 0) return "—";
+  if (mins < 60) return `${Math.round(mins)} min`;
+  const h = Math.floor(mins / 60);
+  const m = Math.round(mins - h * 60);
+  return `${h}h ${m}m`;
+}
+
+function renderPrintInfo(spec) {
+  const printer = getPrinterProfile();
+  if (!printer) {
+    return `<div class="print-info empty">
+      <button class="btn btn-primary" id="open-printer-picker" style="width:auto;padding:8px 16px">⚙ <span style="margin-left:6px">Pick your printer for print-time estimates</span></button>
+    </div>`;
+  }
+  const est = estimatePrint(spec);
+  if (!est) return "";
+  const material = est.material;
+  return `<div class="print-info">
+    <div class="print-info-row">
+      <div class="print-info-stat"><div class="pi-label">Volume</div><div class="pi-val">${est.volCm3.toFixed(1)} cm³</div></div>
+      <div class="print-info-stat"><div class="pi-label">Weight (${material.name})</div><div class="pi-val">${est.weightG.toFixed(1)} g</div></div>
+      <div class="print-info-stat"><div class="pi-label">Filament</div><div class="pi-val">${est.filamentLengthM.toFixed(1)} m</div></div>
+      <div class="print-info-stat"><div class="pi-label">Material cost</div><div class="pi-val">$${est.cost.toFixed(2)}</div></div>
+      <div class="print-info-stat"><div class="pi-label">Est. print time</div><div class="pi-val">${formatTime(est.timeMinutes)}</div></div>
+    </div>
+    <div class="print-info-footer">
+      <span>On your <strong>${printer.name}</strong> with ${material.name} · <button class="link-btn" id="change-printer">change</button> · <button class="link-btn" id="change-material">${MATERIALS[material.id] ? material.name : "PLA"} ↻</button></span>
+    </div>
+  </div>`;
+}
+
+function bindPrintInfoControls(el) {
+  document.getElementById("open-printer-picker")?.addEventListener("click", () => showPrinterPicker(el));
+  document.getElementById("change-printer")?.addEventListener("click", () => showPrinterPicker(el));
+  document.getElementById("change-material")?.addEventListener("click", () => showMaterialPicker(el));
+}
+
+function showPrinterPicker(el) {
+  const currentId = localStorage.getItem(FORGE_PRINTER_KEY);
+  const modal = document.createElement("div");
+  modal.className = "forge-modal";
+  modal.innerHTML = `
+    <div class="forge-modal-card">
+      <div class="forge-modal-title">Which printer do you have?</div>
+      <div class="forge-modal-sub">We use it to estimate print time + material use. You can change this anytime.</div>
+      <div class="printer-grid">
+        ${Object.entries(PRINTER_PROFILES).map(([id, p]) => `
+          <button class="printer-card ${id === currentId ? "active" : ""}" data-printer="${id}">
+            <div class="printer-card-name">${escapeHtml(p.name)}</div>
+            <div class="printer-card-meta">${p.bedX}×${p.bedY}×${p.bedZ}mm bed${p.resin ? " · resin" : ` · ~${p.flowRate} mm³/s`}</div>
+          </button>
+        `).join("")}
+        <button class="printer-card" data-printer="none">
+          <div class="printer-card-name">I don't have one yet</div>
+          <div class="printer-card-meta">Skip estimates for now</div>
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
+  modal.querySelectorAll("[data-printer]").forEach(b => b.addEventListener("click", () => {
+    const id = b.dataset.printer;
+    if (id === "none") { localStorage.removeItem(FORGE_PRINTER_KEY); }
+    else { setPrinterProfile(id); }
+    modal.remove();
+    if (currentRoute === "forge") renderForge(el);
+  }));
+}
+
+function showMaterialPicker(el) {
+  const currentId = localStorage.getItem(FORGE_MATERIAL_KEY) || "pla";
+  const modal = document.createElement("div");
+  modal.className = "forge-modal";
+  modal.innerHTML = `
+    <div class="forge-modal-card">
+      <div class="forge-modal-title">Which material are you printing in?</div>
+      <div class="forge-modal-sub">Affects weight + cost estimates.</div>
+      <div class="material-grid">
+        ${Object.entries(MATERIALS).map(([id, m]) => `
+          <button class="material-card ${id === currentId ? "active" : ""}" data-material="${id}">
+            <div class="material-card-name">${escapeHtml(m.name)}</div>
+            <div class="material-card-meta">${m.density} g/cm³ · ~$${m.costPerKg}/kg</div>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
+  modal.querySelectorAll("[data-material]").forEach(b => b.addEventListener("click", () => {
+    setMaterial(b.dataset.material);
+    modal.remove();
+    if (currentRoute === "forge") renderForge(el);
+  }));
+}
+
 function getSavedModels() { try { return JSON.parse(localStorage.getItem(FORGE_MODELS_KEY) || "[]"); } catch { return []; } }
 function captureViewerThumbnail() {
   // Snapshot the current viewer to a small data URL for the My Models page.
@@ -877,11 +1121,66 @@ function saveModel(spec, prompt) {
   const thumbnail = captureViewerThumbnail();
   all.unshift({ id: Date.now(), name: spec.name || "Untitled", spec, prompt, savedAt: new Date().toISOString(), thumbnail });
   // Cap at 50 saved models — thumbnails take ~15KB each so 50 = ~750KB, fits localStorage
-  localStorage.setItem(FORGE_MODELS_KEY, JSON.stringify(all.slice(0, 50)));
+  const capped = all.slice(0, 50);
+  localStorage.setItem(FORGE_MODELS_KEY, JSON.stringify(capped));
+  // Fire-and-forget cloud sync
+  syncModelsToCloud(capped).catch(() => {});
 }
 function deleteSavedModel(id) {
   const all = getSavedModels().filter((m) => m.id !== id);
   localStorage.setItem(FORGE_MODELS_KEY, JSON.stringify(all));
+  syncModelsToCloud(all).catch(() => {});
+}
+
+// ============================================================
+// Cloud sync — store My Models inside the user's profile.data.forgeModels
+// localStorage stays as the fast cache. Cloud is authoritative on login.
+// ============================================================
+async function syncModelsToCloud(models) {
+  const session = getSession();
+  if (!session?.id) return;
+  // Strip thumbnails before sending — they bloat the payload massively.
+  // We keep thumbnails local-only; on a fresh device they get regenerated
+  // when the user re-opens a model in Forge.
+  const slim = (models || []).map(m => ({
+    id: m.id, name: m.name, spec: m.spec, prompt: m.prompt, savedAt: m.savedAt,
+  }));
+  try {
+    // Fetch the current profile so we don't clobber other data fields
+    const r = await fetch(`${NEXUS_API_BASE}/api/users?id=${encodeURIComponent(session.id)}`);
+    const j = await r.json();
+    const profile = (j && j.profile) || {};
+    const newProfile = { ...profile, data: { ...(profile.data || {}), forgeModels: slim, forgeModelsSyncedAt: new Date().toISOString() } };
+    await fetch(`${NEXUS_API_BASE}/api/users`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id: session.id, profile: newProfile }),
+    });
+  } catch {
+    // Silent — local copy is still safe. We'll retry next save.
+  }
+}
+
+async function loadModelsFromCloud() {
+  const session = getSession();
+  if (!session?.id) return;
+  try {
+    const r = await fetch(`${NEXUS_API_BASE}/api/users?id=${encodeURIComponent(session.id)}`);
+    const j = await r.json();
+    const cloudModels = j?.profile?.data?.forgeModels || [];
+    if (!Array.isArray(cloudModels) || cloudModels.length === 0) return;
+    // Merge with local: keep cloud as the source of truth for spec/prompt,
+    // but preserve any locally-stored thumbnails by matching on id.
+    const local = getSavedModels();
+    const byId = Object.fromEntries(local.map(m => [m.id, m]));
+    const merged = cloudModels.map(c => ({
+      ...c,
+      thumbnail: byId[c.id]?.thumbnail || null, // local-only field
+    }));
+    localStorage.setItem(FORGE_MODELS_KEY, JSON.stringify(merged.slice(0, 50)));
+  } catch {
+    // Cloud unreachable — stay with local cache
+  }
 }
 
 // ============================================================
@@ -929,6 +1228,11 @@ let chatHistory = [];
 
 function render() {
   const session = getSession();
+  // Hydrate My Models from cloud whenever we render with a session (fire-and-forget)
+  if (session?.id && !window._forgeCloudLoaded) {
+    window._forgeCloudLoaded = true;
+    loadModelsFromCloud().catch(() => {});
+  }
   if (!session) return renderAuth();
   return renderShell();
 }
@@ -1106,6 +1410,7 @@ function renderForge(el) {
         <div id="anim-caption" class="anim-caption" style="display:none"></div>
       </div>
       ${lastSpec?.notes ? `<div class="model-notes">📝 ${escapeHtml(lastSpec.notes)}</div>` : ""}
+      ${lastSpec ? renderPrintInfo(lastSpec) : ""}
       <div class="viewer-toolbar">
         <button class="btn btn-primary" id="see-in-action" ${!lastSpec ? "disabled" : ""} title="Watch a 3D demo of how this model is actually used">▶ <span style="margin-left:6px">See it in action</span></button>
         <button class="btn btn-secondary" id="export-stl" title="Standard mesh format — works with everything">${ICONS.download}<span style="margin-left:6px">STL</span></button>
@@ -1195,6 +1500,7 @@ function renderForge(el) {
   });
   document.querySelectorAll(".app-chip[data-app]").forEach(b => b.addEventListener("click", () => sendToApp(b.dataset.app)));
   document.getElementById("see-in-action")?.addEventListener("click", playSeeInAction);
+  bindPrintInfoControls(el);
 }
 
 // ============================================================
