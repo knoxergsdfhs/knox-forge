@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<title>Knox Forge — 3D modeling with AI</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg-2: #14141b;
+    --card: #1a1a24;
+    --card-2: #20202d;
+    --border: #2a2a38;
+    --border-soft: #20202b;
+    --text: #f4f4f7;
+    --muted: #8a8a98;
+    --muted-2: #6b6b78;
+    --primary: #7c5cff;
+    --primary-2: #a78bff;
+    --accent: #14b8a6;
+    --red: #ff5c7a;
+    --green: #5cff8a;
+    --yellow: #ffd05c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(circle at 80% -10%, #1f1233 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: 'InterVariable', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+    letter-spacing: -0.011em;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  #app { min-height: 100vh; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+
+  /* ───── Brand mark ───── */
+  .brand-mark {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: grid; place-items: center;
+    position: relative;
+  }
+  .brand-mark svg { width: 18px; height: 18px; }
+
+  /* ───── Auth / landing ───── */
+  .auth-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 20px; }
+  .auth-card { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 32px; }
+  .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .logo-text { font-weight: 700; font-size: 17px; letter-spacing: -0.4px; line-height: 1.1; }
+  .logo-text small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); letter-spacing: 0; margin-top: 3px; }
+  .auth-title { font-size: 26px; font-weight: 700; letter-spacing: -0.6px; margin-bottom: 6px; }
+  .auth-sub { color: var(--muted); font-size: 14px; line-height: 1.55; margin-bottom: 22px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 7px; }
+  .field input { width: 100%; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; color: var(--text); font-size: 15px; font-family: inherit; outline: none; transition: border-color 0.15s; }
+  .field input:focus { border-color: var(--primary); }
+  .btn { width: 100%; border: none; border-radius: 12px; padding: 13px; font-weight: 600; font-size: 14px; cursor: pointer; transition: transform 0.1s; font-family: inherit; }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: wait; }
+  .btn-secondary { background: var(--bg-2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--primary); }
+  .btn-row { display: flex; gap: 8px; }
+  .auth-toggle { margin-top: 14px; text-align: center; font-size: 13px; color: var(--muted); }
+  .auth-toggle a { color: var(--primary-2); text-decoration: none; font-weight: 600; cursor: pointer; }
+  .auth-err { background: rgba(255,92,122,0.1); border: 1px solid rgba(255,92,122,0.4); color: var(--red); padding: 10px 12px; border-radius: 10px; font-size: 13px; margin-bottom: 12px; }
+
+  /* ───── App shell ───── */
+  .shell { display: flex; min-height: 100vh; }
+  .sidebar { width: 230px; background: rgba(10,10,15,0.6); border-right: 1px solid var(--border-soft); padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; }
+  .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px; }
+  .nav-item { display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 8px; color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.12s; border: none; background: transparent; width: 100%; text-align: left; font-family: inherit; }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .nav-item.active { background: rgba(124,92,255,0.12); color: var(--text); }
+  .nav-item.active svg { color: var(--primary); }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--muted-2); }
+  .nav-divider { height: 1px; background: var(--border-soft); margin: 10px 4px; }
+  .user-row { margin-top: auto; padding: 10px; border-top: 1px solid var(--border-soft); display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display: grid; place-items: center; font-weight: 700; font-size: 12px; color: var(--bg); flex-shrink: 0; }
+  .user-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+  .user-row .ghost-btn { background: transparent; border: none; color: var(--muted-2); cursor: pointer; padding: 4px; }
+  .user-row .ghost-btn:hover { color: var(--red); }
+
+  .main { flex: 1; padding: 32px 32px 64px; max-width: 1100px; }
+  .page-header { margin-bottom: 28px; }
+  .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.7px; line-height: 1.15; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-top: 6px; line-height: 1.55; }
+
+  /* ───── Forge (Generate) ───── */
+  .prompt-shell { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 22px; margin-bottom: 24px; }
+  .prompt-shell textarea { width: 100%; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; color: var(--text); font-family: inherit; font-size: 15px; line-height: 1.5; resize: vertical; min-height: 90px; outline: none; }
+  .prompt-shell textarea:focus { border-color: var(--primary); }
+  .prompt-shell .row { display: flex; gap: 10px; margin-top: 14px; align-items: center; }
+  .prompt-shell .row .meta { flex: 1; font-size: 12px; color: var(--muted-2); }
+  .preset-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+  .preset-chip { background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font-size: 12px; color: var(--muted); cursor: pointer; transition: all 0.12s; font-family: inherit; }
+  .preset-chip:hover { color: var(--text); border-color: var(--primary); }
+  .preset-chip.active { background: rgba(124,92,255,0.15); color: var(--primary-2); border-color: var(--primary); }
+
+  /* ───── Viewer ───── */
+  .viewer-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 24px; }
+  .viewer-head { padding: 14px 18px; border-bottom: 1px solid var(--border-soft); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .viewer-head h3 { font-size: 14px; font-weight: 600; flex: 1; min-width: 0; }
+  .viewer-head .pill { background: var(--bg-2); border: 1px solid var(--border); padding: 4px 10px; border-radius: 999px; font-size: 11px; color: var(--muted); }
+  #viewer-canvas { width: 100%; height: 420px; background: radial-gradient(circle at 50% 40%, #1a1830 0%, #0a0a0f 70%); display: block; }
+  .viewer-toolbar { padding: 12px 18px; border-top: 1px solid var(--border-soft); display: flex; gap: 8px; flex-wrap: wrap; }
+  .viewer-toolbar .btn { width: auto; padding: 8px 14px; font-size: 13px; }
+
+  /* ───── Empty state ───── */
+  .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty-icon { width: 56px; height: 56px; margin: 0 auto 16px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; display: grid; place-items: center; color: var(--primary); }
+  .empty h2 { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 6px; letter-spacing: -0.3px; }
+  .empty p { font-size: 14px; line-height: 1.55; max-width: 380px; margin: 0 auto; }
+
+  /* ───── Assistant chat ───── */
+  .chat-window { background: var(--card); border: 1px solid var(--border); border-radius: 18px; display: flex; flex-direction: column; height: calc(100vh - 200px); min-height: 480px; }
+  .chat-msgs { flex: 1; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+  .msg { max-width: 78%; padding: 12px 15px; border-radius: 16px; font-size: 14px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+  .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .msg.bot { background: var(--bg-2); color: var(--text); align-self: flex-start; border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .msg.bot.thinking { color: var(--muted); font-style: italic; }
+  .chat-input-row { padding: 14px; border-top: 1px solid var(--border-soft); display: flex; gap: 8px; }
+  .chat-input-row textarea { flex: 1; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; color: var(--text); font-family: inherit; font-size: 14px; resize: none; min-height: 44px; max-height: 200px; outline: none; }
+  .chat-input-row textarea:focus { border-color: var(--primary); }
+  .chat-send { background: var(--primary); color: white; border: none; border-radius: 12px; padding: 0 18px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .chat-send:disabled { opacity: 0.5; cursor: wait; }
+
+  /* ───── Mobile ───── */
+  @media (max-width: 800px) {
+    .shell { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; padding: 12px; flex-direction: row; overflow-x: auto; position: sticky; top: 0; gap: 6px; z-index: 10; backdrop-filter: blur(12px); }
+    .sidebar-brand, .user-row, .nav-divider { display: none; }
+    .nav-item { white-space: nowrap; padding: 7px 12px; font-size: 12px; }
+    .main { padding: 20px 16px 80px; }
+    .page-title { font-size: 22px; }
+  }
+
+  /* ───── Spinner ───── */
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
+
+// ============================================================
+// Config — shared with Nexus + Hub
+// ============================================================
+const NEXUS_API_BASE = "https://life-nexus-organizer.vercel.app";
+const FORGE_SESSION_KEY = "knoxforge:session";
+const FORGE_MODELS_KEY = "knoxforge:models";
+
+// ============================================================
+// Icons (SVG inline)
+// ============================================================
+const ICONS = {
+  forge:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`,
+  scan:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/></svg>`,
+  discover: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+  models:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+  assistant: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  sparkles: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>`,
+  signout:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+  download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+  save:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+};
+const brandSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`;
+
+// ============================================================
+// Session / auth (shares Nexus user pool)
+// ============================================================
+function getSession() { try { return JSON.parse(localStorage.getItem(FORGE_SESSION_KEY) || "null"); } catch { return null; } }
+function setSession(s) { localStorage.setItem(FORGE_SESSION_KEY, JSON.stringify(s)); }
+function clearSession() { localStorage.removeItem(FORGE_SESSION_KEY); }
+function escapeHtml(s) { return String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+async function hashPassword(password, saltHex) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", enc.encode(password), { name: "PBKDF2" }, false, ["deriveBits"]);
+  const saltBytes = new Uint8Array(saltHex.match(/.{1,2}/g).map((b) => parseInt(b, 16)));
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: saltBytes, iterations: 100000, hash: "SHA-256" }, key, 256);
+  return Array.from(new Uint8Array(bits)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function randomHex(n) {
+  const b = new Uint8Array(n);
+  crypto.getRandomValues(b);
+  return Array.from(b).map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+
+async function login(identifier, password) {
+  const looksLikePhone = /^[+\d\s\-().]+$/.test(identifier) && !identifier.includes("@");
+  const r = await fetch(`${NEXUS_API_BASE}/api/auth/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(looksLikePhone ? { phone: identifier.trim(), password } : { email: identifier.trim(), password }),
+  });
+  const j = await r.json();
+  if (!r.ok || !j.ok) throw new Error(j.error || `Sign-in failed (${r.status})`);
+  return j.user;
+}
+async function createAccount(identifier, password) {
+  const looksLikePhone = /^[+\d\s\-().]+$/.test(identifier) && !identifier.includes("@");
+  const salt = randomHex(16);
+  const passwordHash = await hashPassword(password, salt);
+  const id = identifier.trim().toLowerCase();
+  const profile = looksLikePhone
+    ? { phone: id, name: id, passwordHash, passwordSalt: salt, createdAt: new Date().toISOString(), shareProfile: true }
+    : { email: id, name: id.split("@")[0] || id, passwordHash, passwordSalt: salt, createdAt: new Date().toISOString(), shareProfile: true };
+  const r = await fetch(`${NEXUS_API_BASE}/api/users`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ id, profile }),
+  });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Couldn't create account (${r.status})`);
+  return await login(identifier, password);
+}
+
+// ============================================================
+// Forge — AI prompt → primitive spec → Three.js geometry
+// ============================================================
+async function generateModelFromPrompt(prompt, presets = []) {
+  // Ask Gemini for a JSON primitive spec
+  const r = await fetch(`${NEXUS_API_BASE}/api/ai/command`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      command: `[KNOX-FORGE] Generate a 3D model spec for: "${prompt}"${presets.length ? ` (preset hints: ${presets.join(", ")})` : ""}.
+
+Respond with ONLY this JSON (no prose, no code fences):
+{
+  "name": "short descriptive name",
+  "description": "one sentence about what it is",
+  "units": "mm",
+  "parts": [
+    { "kind": "box"|"sphere"|"cylinder"|"cone"|"torus", "size": [w,h,d] OR "radius": n OR custom, "position": [x,y,z], "rotation": [rx,ry,rz] in degrees, "color": "#hex" (optional), "op": "add"|"subtract" (default "add") }
+  ],
+  "estimatedDimensions": "Width x Height x Depth in mm"
+}
+
+All measurements in millimeters. Position [0,0,0] is the center. Build from primitives — cubes, spheres, cylinders, cones, toruses. Use boolean ops (subtract) for holes/cutouts. Aim for 3-12 parts. Be specific with numeric values.`,
+      actions: [{ name: "generate_model_spec", description: "Returns the JSON model spec." }],
+    }),
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || `Generation failed (${r.status})`);
+  // The command endpoint returns { actions: [...] }. We piggyback the JSON in the freeform reply.
+  // Try several spots where the spec might live:
+  let spec = null;
+  if (j.actions && j.actions[0] && j.actions[0].params) spec = j.actions[0].params;
+  if (!spec && j.reply) {
+    const m = j.reply.match(/\{[\s\S]*\}/);
+    if (m) { try { spec = JSON.parse(m[0]); } catch {} }
+  }
+  if (!spec && typeof j === "object" && j.parts) spec = j;
+  if (!spec || !Array.isArray(spec.parts)) {
+    // Fallback: parse the whole response as JSON
+    try { spec = JSON.parse(JSON.stringify(j)); } catch {}
+  }
+  if (!spec || !Array.isArray(spec.parts) || spec.parts.length === 0) {
+    throw new Error("AI didn't return a usable spec — try a more specific prompt");
+  }
+  return spec;
+}
+
+function buildThreeGroupFromSpec(spec) {
+  const group = new THREE.Group();
+  for (const p of spec.parts || []) {
+    let geom;
+    const kind = (p.kind || "box").toLowerCase();
+    if (kind === "box" || kind === "cube") {
+      const s = p.size || [10, 10, 10];
+      geom = new THREE.BoxGeometry(s[0] || 10, s[1] || 10, s[2] || 10);
+    } else if (kind === "sphere") {
+      const r = p.radius || 10;
+      geom = new THREE.SphereGeometry(r, 32, 24);
+    } else if (kind === "cylinder") {
+      const r = p.radius || 10;
+      const h = (p.size && p.size[1]) || p.height || 10;
+      geom = new THREE.CylinderGeometry(r, r, h, 32);
+    } else if (kind === "cone") {
+      const r = p.radius || 10;
+      const h = (p.size && p.size[1]) || p.height || 10;
+      geom = new THREE.ConeGeometry(r, h, 32);
+    } else if (kind === "torus") {
+      const r = p.radius || 10;
+      const t = p.tube || 2;
+      geom = new THREE.TorusGeometry(r, t, 16, 48);
+    } else {
+      const s = p.size || [10, 10, 10];
+      geom = new THREE.BoxGeometry(s[0] || 10, s[1] || 10, s[2] || 10);
+    }
+    const color = p.color || "#7c5cff";
+    const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.05 });
+    const mesh = new THREE.Mesh(geom, mat);
+    const pos = p.position || [0, 0, 0];
+    mesh.position.set(pos[0] || 0, pos[1] || 0, pos[2] || 0);
+    if (p.rotation) {
+      const r = p.rotation;
+      mesh.rotation.set(THREE.MathUtils.degToRad(r[0] || 0), THREE.MathUtils.degToRad(r[1] || 0), THREE.MathUtils.degToRad(r[2] || 0));
+    }
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    group.add(mesh);
+  }
+  return group;
+}
+
+function downloadBlob(filename, content, mime = "application/octet-stream") {
+  const blob = content instanceof Blob ? content : new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ============================================================
+// 3D viewer
+// ============================================================
+let viewerScene, viewerCamera, viewerRenderer, viewerControls, viewerGroup, viewerAnimId;
+function initViewer(canvas) {
+  if (viewerRenderer) viewerRenderer.dispose();
+  if (viewerAnimId) cancelAnimationFrame(viewerAnimId);
+  viewerScene = new THREE.Scene();
+  viewerScene.background = null;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  viewerCamera = new THREE.PerspectiveCamera(45, w / h, 0.1, 5000);
+  viewerCamera.position.set(70, 50, 70);
+  viewerRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  viewerRenderer.setPixelRatio(window.devicePixelRatio || 1);
+  viewerRenderer.setSize(w, h, false);
+  viewerRenderer.shadowMap.enabled = true;
+
+  // Lights
+  const hemi = new THREE.HemisphereLight(0xb4baff, 0x202030, 0.6);
+  viewerScene.add(hemi);
+  const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+  dir.position.set(50, 80, 30);
+  dir.castShadow = true;
+  viewerScene.add(dir);
+  const fill = new THREE.DirectionalLight(0x7c5cff, 0.3);
+  fill.position.set(-40, 20, -30);
+  viewerScene.add(fill);
+
+  // Floor
+  const floor = new THREE.Mesh(
+    new THREE.CircleGeometry(80, 64),
+    new THREE.MeshStandardMaterial({ color: 0x14141b, roughness: 0.9 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -0.01;
+  floor.receiveShadow = true;
+  viewerScene.add(floor);
+
+  // Grid
+  const grid = new THREE.GridHelper(160, 32, 0x2a2a38, 0x20202b);
+  grid.position.y = 0;
+  viewerScene.add(grid);
+
+  viewerControls = new OrbitControls(viewerCamera, canvas);
+  viewerControls.enableDamping = true;
+  viewerControls.dampingFactor = 0.08;
+  viewerControls.target.set(0, 10, 0);
+
+  function tick() {
+    viewerAnimId = requestAnimationFrame(tick);
+    viewerControls.update();
+    viewerRenderer.render(viewerScene, viewerCamera);
+  }
+  tick();
+
+  // Handle resize
+  const ro = new ResizeObserver(() => {
+    if (!viewerRenderer || !viewerCamera) return;
+    const cw = canvas.clientWidth, ch = canvas.clientHeight;
+    viewerCamera.aspect = cw / ch;
+    viewerCamera.updateProjectionMatrix();
+    viewerRenderer.setSize(cw, ch, false);
+  });
+  ro.observe(canvas);
+}
+
+function setViewerModel(spec) {
+  if (!viewerScene) return;
+  if (viewerGroup) viewerScene.remove(viewerGroup);
+  viewerGroup = buildThreeGroupFromSpec(spec);
+
+  // Auto-frame: compute bounding box and recenter camera
+  const box = new THREE.Box3().setFromObject(viewerGroup);
+  const size = box.getSize(new THREE.Vector3()).length();
+  const center = box.getCenter(new THREE.Vector3());
+  viewerControls.target.copy(center);
+  const dist = Math.max(40, size * 1.8);
+  viewerCamera.position.set(center.x + dist * 0.7, center.y + dist * 0.5, center.z + dist * 0.7);
+  viewerCamera.near = size / 100; viewerCamera.far = size * 10; viewerCamera.updateProjectionMatrix();
+  viewerScene.add(viewerGroup);
+}
+
+function exportSTL() {
+  if (!viewerGroup) return alert("Generate something first");
+  const exp = new STLExporter();
+  const stl = exp.parse(viewerGroup, { binary: false });
+  downloadBlob(`knox-forge-${Date.now()}.stl`, stl, "model/stl");
+}
+function exportOBJ() {
+  if (!viewerGroup) return alert("Generate something first");
+  const exp = new OBJExporter();
+  const obj = exp.parse(viewerGroup);
+  downloadBlob(`knox-forge-${Date.now()}.obj`, obj, "text/plain");
+}
+
+// ============================================================
+// Saved models (localStorage for now)
+// ============================================================
+function getSavedModels() { try { return JSON.parse(localStorage.getItem(FORGE_MODELS_KEY) || "[]"); } catch { return []; } }
+function saveModel(spec, prompt) {
+  const all = getSavedModels();
+  all.unshift({ id: Date.now(), name: spec.name || "Untitled", spec, prompt, savedAt: new Date().toISOString() });
+  localStorage.setItem(FORGE_MODELS_KEY, JSON.stringify(all.slice(0, 50)));
+}
+function deleteSavedModel(id) {
+  const all = getSavedModels().filter((m) => m.id !== id);
+  localStorage.setItem(FORGE_MODELS_KEY, JSON.stringify(all));
+}
+
+// ============================================================
+// Assistant — Gemini chat with 3D-printing system prompt
+// ============================================================
+const ASSISTANT_SYSTEM = `You are Knox Forge's AI assistant. You're an expert in:
+- 3D modeling and CAD
+- 3D printing (FDM, resin, SLA, MJF)
+- Bambu Lab printers specifically (X1C, P1S, P1P, A1, A1 mini, H2D)
+- Slicing software (Bambu Studio, Cura, PrusaSlicer, OrcaSlicer)
+- Filament types (PLA, PETG, ABS, TPU, ASA, PA-CF, etc.)
+- Common printing problems and fixes (warping, layer adhesion, stringing, elephant foot, ringing, etc.)
+- This app (Knox Forge): users prompt for a 3D model, get an exportable STL/OBJ for Bambu Labs, Cura, Tinkercad, Blender, Fusion 360. Includes a Scan placeholder, a Discover swipe feed, and saved models.
+
+Style: helpful, direct, concise. Use bullet points for steps and troubleshooting lists. Don't preface with "Great question!" or similar fluff. If a question isn't about 3D printing or this app, gently redirect.`;
+
+async function chatAssistant(history) {
+  const r = await fetch(`${NEXUS_API_BASE}/api/ai/command`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      command: ASSISTANT_SYSTEM + "\n\n--- Conversation ---\n" + history.map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n\n") + "\n\nAssistant:",
+      actions: [{ name: "reply", description: "Plain text reply." }],
+    }),
+  });
+  const j = await r.json();
+  // Try multiple shapes
+  let reply = j.reply || j.actions?.[0]?.params?.text || j.actions?.[0]?.params?.reply;
+  if (!reply && typeof j === "string") reply = j;
+  if (!reply) reply = "Sorry, I couldn't generate a response. Try again?";
+  return reply;
+}
+
+// ============================================================
+// Views (pages)
+// ============================================================
+let currentRoute = "forge";
+let chatHistory = [];
+
+function render() {
+  const session = getSession();
+  if (!session) return renderAuth();
+  return renderShell();
+}
+
+// ───── Auth ─────
+let authMode = "chooser"; // chooser | signin | create
+function renderAuth(err = null) {
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="auth-wrap">
+      <div class="auth-card">
+        <div class="logo">
+          <div class="brand-mark">${brandSvg}</div>
+          <div class="logo-text">Knox Forge<small>Prompt → 3D model → print</small></div>
+        </div>
+        ${authMode === "chooser" ? `
+          <div class="auth-title">Build anything</div>
+          <div class="auth-sub">Tell Forge what you want. Get an exportable 3D file ready for Bambu, Cura, Tinkercad, Blender, Fusion 360.</div>
+          <button class="btn btn-primary" id="go-signin">Sign in</button>
+          <button class="btn btn-secondary" id="go-create" style="margin-top:8px">Create account</button>
+          <div class="auth-toggle" style="margin-top:18px">Already used Nexus? Same account works here.</div>
+        ` : `
+          <div class="auth-title">${authMode === "signin" ? "Sign in" : "Create account"}</div>
+          <div class="auth-sub">${authMode === "signin" ? "Use your Knox account (works across Nexus, the hub, and any Knox app)." : "One account, every Knox app."}</div>
+          ${err ? `<div class="auth-err">${escapeHtml(err)}</div>` : ""}
+          <form id="auth-form">
+            <div class="field">
+              <label>Email or phone</label>
+              <input type="text" name="identifier" required autofocus autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="you@example.com or (555) 555-5555" />
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" name="password" required autocomplete="${authMode === "signin" ? "current-password" : "new-password"}" placeholder="your password" />
+            </div>
+            <button type="submit" class="btn btn-primary" id="auth-submit">${authMode === "signin" ? "Sign in" : "Create account"}</button>
+          </form>
+          <div class="auth-toggle">
+            ${authMode === "signin" ? "No account?" : "Already have one?"}
+            <a id="auth-toggle">${authMode === "signin" ? "Create one" : "Sign in"}</a>
+          </div>
+        `}
+      </div>
+    </div>
+  `;
+  if (authMode === "chooser") {
+    document.getElementById("go-signin").addEventListener("click", () => { authMode = "signin"; renderAuth(); });
+    document.getElementById("go-create").addEventListener("click", () => { authMode = "create"; renderAuth(); });
+  } else {
+    document.getElementById("auth-toggle").addEventListener("click", () => { authMode = authMode === "signin" ? "create" : "signin"; renderAuth(); });
+    document.getElementById("auth-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("auth-submit");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"></span>${authMode === "signin" ? "Signing in…" : "Creating…"}`;
+      const fd = new FormData(e.target);
+      const identifier = String(fd.get("identifier") || "").trim();
+      const password = String(fd.get("password") || "");
+      try {
+        const user = authMode === "signin" ? await login(identifier, password) : await createAccount(identifier, password);
+        setSession({ user, signedInAt: Date.now() });
+        render();
+      } catch (ex) {
+        renderAuth(ex.message || "Something went wrong");
+      }
+    });
+  }
+}
+
+// ───── Shell ─────
+function renderShell() {
+  const session = getSession();
+  const name = session.user.profile?.name || (session.user.profile?.email || "").split("@")[0] || "Maker";
+  const initial = (name[0] || "K").toUpperCase();
+  const navItems = [
+    { id: "forge",     label: "Forge",     icon: ICONS.forge },
+    { id: "scan",      label: "Scan",      icon: ICONS.scan },
+    { id: "discover",  label: "Discover",  icon: ICONS.discover },
+    { id: "models",    label: "My Models", icon: ICONS.models },
+    { id: "assistant", label: "Assistant", icon: ICONS.assistant },
+  ];
+  document.getElementById("app").innerHTML = `
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-mark">${brandSvg}</div>
+          <div class="logo-text">Knox Forge<small>3D &middot; modeled by AI</small></div>
+        </div>
+        ${navItems.map(n => `<button class="nav-item ${n.id === currentRoute ? "active" : ""}" data-route="${n.id}">${n.icon}<span>${n.label}</span></button>`).join("")}
+        <div class="user-row">
+          <div class="user-avatar">${escapeHtml(initial)}</div>
+          <div class="user-name">${escapeHtml(name)}</div>
+          <button class="ghost-btn" id="signout" title="Sign out">${ICONS.signout}</button>
+        </div>
+      </aside>
+      <main class="main" id="page"></main>
+    </div>
+  `;
+  document.querySelectorAll("[data-route]").forEach(b => b.addEventListener("click", () => { currentRoute = b.dataset.route; renderShell(); }));
+  document.getElementById("signout").addEventListener("click", () => { if (confirm("Sign out?")) { clearSession(); render(); } });
+  renderPage();
+}
+
+function renderPage() {
+  const el = document.getElementById("page");
+  if (currentRoute === "forge")     return renderForge(el);
+  if (currentRoute === "scan")      return renderScan(el);
+  if (currentRoute === "discover")  return renderDiscover(el);
+  if (currentRoute === "models")    return renderModels(el);
+  if (currentRoute === "assistant") return renderAssistant(el);
+}
+
+// ───── Forge (Generate) ─────
+let lastSpec = null, lastPrompt = "";
+const PRESETS = ["model", "TPU / flexible", "resin mold", "toy", "fidget", "functional part", "remix"];
+let activePresets = new Set(["model"]);
+function renderForge(el) {
+  el.innerHTML = `
+    <header class="page-header">
+      <div class="page-title">Forge</div>
+      <div class="page-sub">Tell Forge what to build. Get a 3D model ready for STL, OBJ, and your slicer.</div>
+    </header>
+    <div class="prompt-shell">
+      <textarea id="prompt" placeholder="A 50mm tall pencil holder with a hexagonal cross-section, 4mm walls, open top, slot in the side for a phone cable."></textarea>
+      <div class="preset-row" id="presets">
+        ${PRESETS.map(p => `<button class="preset-chip ${activePresets.has(p) ? "active" : ""}" data-preset="${escapeHtml(p)}">${escapeHtml(p)}</button>`).join("")}
+      </div>
+      <div class="row">
+        <div class="meta">Tip: include dimensions in mm, function, and material constraints.</div>
+        <button class="btn btn-primary" id="gen-btn" style="width:auto;padding:10px 20px">${ICONS.sparkles}<span style="margin-left:6px">Generate</span></button>
+      </div>
+    </div>
+    <div class="viewer-wrap">
+      <div class="viewer-head">
+        <h3 id="model-name">${lastSpec ? escapeHtml(lastSpec.name || "Untitled") : "Live preview"}</h3>
+        <span class="pill" id="model-dims">${lastSpec?.estimatedDimensions || "—"}</span>
+        <span class="pill" id="model-parts">${lastSpec ? (lastSpec.parts?.length || 0) + " parts" : ""}</span>
+      </div>
+      <canvas id="viewer-canvas"></canvas>
+      <div class="viewer-toolbar">
+        <button class="btn btn-secondary" id="export-stl">${ICONS.download}<span style="margin-left:6px">Export STL</span></button>
+        <button class="btn btn-secondary" id="export-obj">${ICONS.download}<span style="margin-left:6px">Export OBJ</span></button>
+        <button class="btn btn-secondary" id="save-model">${ICONS.save}<span style="margin-left:6px">Save to My Models</span></button>
+      </div>
+    </div>
+  `;
+  initViewer(document.getElementById("viewer-canvas"));
+  if (lastSpec) setViewerModel(lastSpec);
+  document.querySelectorAll("#presets [data-preset]").forEach(b => b.addEventListener("click", () => {
+    const p = b.dataset.preset;
+    if (activePresets.has(p)) activePresets.delete(p); else activePresets.add(p);
+    renderForge(el);
+  }));
+  document.getElementById("gen-btn").addEventListener("click", async () => {
+    const prompt = document.getElementById("prompt").value.trim();
+    if (!prompt) return alert("Type a prompt first");
+    const btn = document.getElementById("gen-btn");
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span>Forging…`;
+    try {
+      lastPrompt = prompt;
+      lastSpec = await generateModelFromPrompt(prompt, Array.from(activePresets));
+      setViewerModel(lastSpec);
+      document.getElementById("model-name").innerText = lastSpec.name || "Untitled";
+      document.getElementById("model-dims").innerText = lastSpec.estimatedDimensions || "—";
+      document.getElementById("model-parts").innerText = (lastSpec.parts?.length || 0) + " parts";
+    } catch (ex) {
+      alert(ex.message || "Generation failed");
+    }
+    btn.disabled = false;
+    btn.innerHTML = `${ICONS.sparkles}<span style="margin-left:6px">Generate</span>`;
+  });
+  document.getElementById("export-stl").addEventListener("click", exportSTL);
+  document.getElementById("export-obj").addEventListener("click", exportOBJ);
+  document.getElementById("save-model").addEventListener("click", () => {
+    if (!lastSpec) return alert("Generate something first");
+    saveModel(lastSpec, lastPrompt);
+    alert("Saved to My Models");
+  });
+}
+
+// ───── Scan (placeholder for now) ─────
+function renderScan(el) {
+  el.innerHTML = `
+    <header class="page-header">
+      <div class="page-title">Scan</div>
+      <div class="page-sub">Capture real-world objects, turn them into a 3D model. Photo + AI mesh reconstruction.</div>
+    </header>
+    <div class="empty">
+      <div class="empty-icon">${ICONS.scan}</div>
+      <h2>Scanning is coming next</h2>
+      <p>iPhone LiDAR + photo capture + AI mesh reconstruction. Right now this needs a native iOS wrapper for full LiDAR access. Phase 2 will ship photo-batch capture in the browser — you take photos, we send them through a photogrammetry pipeline.</p>
+    </div>
+  `;
+}
+
+// ───── Discover (placeholder for Tinder swipe) ─────
+function renderDiscover(el) {
+  el.innerHTML = `
+    <header class="page-header">
+      <div class="page-title">Discover</div>
+      <div class="page-sub">Swipe through printable models. We learn what you like and pull more like it from MakerWorld + Printables.</div>
+    </header>
+    <div class="empty">
+      <div class="empty-icon">${ICONS.discover}</div>
+      <h2>Tinder-style discovery in Phase 2</h2>
+      <p>MakerWorld + Printables have free public APIs. Next round I'll wire them up: swipe right to like, left to skip, the algorithm narrows on what you keep liking.</p>
+    </div>
+  `;
+}
+
+// ───── My Models ─────
+function renderModels(el) {
+  const models = getSavedModels();
+  el.innerHTML = `
+    <header class="page-header">
+      <div class="page-title">My Models</div>
+      <div class="page-sub">Everything you've generated and saved.</div>
+    </header>
+    ${models.length === 0 ? `
+      <div class="empty">
+        <div class="empty-icon">${ICONS.models}</div>
+        <h2>Nothing saved yet</h2>
+        <p>Generate a model in Forge and tap "Save to My Models" — they'll show up here.</p>
+      </div>
+    ` : `
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+        ${models.map(m => `
+          <div class="prompt-shell" style="margin:0;padding:16px">
+            <div style="font-weight:600;font-size:15px;margin-bottom:4px">${escapeHtml(m.name)}</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;max-height:60px;overflow:hidden">${escapeHtml(m.prompt || "")}</div>
+            <div style="font-size:11px;color:var(--muted-2);margin-bottom:10px">${m.spec?.parts?.length || 0} parts · saved ${new Date(m.savedAt).toLocaleDateString()}</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-secondary" data-load="${m.id}" style="flex:1;padding:8px;font-size:12px">Open in Forge</button>
+              <button class="btn btn-secondary" data-del="${m.id}" style="width:auto;padding:8px 10px;font-size:12px;color:var(--red);border-color:rgba(255,92,122,0.3)">Delete</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `}
+  `;
+  document.querySelectorAll("[data-load]").forEach(b => b.addEventListener("click", () => {
+    const m = models.find(x => x.id === Number(b.dataset.load));
+    if (!m) return;
+    lastSpec = m.spec; lastPrompt = m.prompt || "";
+    currentRoute = "forge"; renderShell();
+  }));
+  document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
+    if (!confirm("Delete this model?")) return;
+    deleteSavedModel(Number(b.dataset.del));
+    renderPage();
+  }));
+}
+
+// ───── Assistant ─────
+function renderAssistant(el) {
+  el.innerHTML = `
+    <header class="page-header">
+      <div class="page-title">Assistant</div>
+      <div class="page-sub">Ask anything about 3D printing, Bambu printers, slicer settings, materials, or this app.</div>
+    </header>
+    <div class="chat-window">
+      <div class="chat-msgs" id="msgs">
+        ${chatHistory.length === 0 ? `
+          <div class="msg bot">Hi — I'm Forge's AI assistant. Ask me about 3D printing, your Bambu printer (X1C, P1S, A1, etc.), slicer settings, filament problems, or how this app works.</div>
+        ` : chatHistory.map(m => `<div class="msg ${m.role === "user" ? "user" : "bot"}${m.thinking ? " thinking" : ""}">${escapeHtml(m.content)}</div>`).join("")}
+      </div>
+      <div class="chat-input-row">
+        <textarea id="chat-input" placeholder="e.g. My PLA print is curling on the corners — what's wrong?" rows="1"></textarea>
+        <button class="chat-send" id="chat-send">Send</button>
+      </div>
+    </div>
+  `;
+  const msgs = document.getElementById("msgs");
+  msgs.scrollTop = msgs.scrollHeight;
+  const send = async () => {
+    const input = document.getElementById("chat-input");
+    const text = input.value.trim();
+    if (!text) return;
+    chatHistory.push({ role: "user", content: text });
+    chatHistory.push({ role: "assistant", content: "Thinking…", thinking: true });
+    input.value = "";
+    renderAssistant(el);
+    try {
+      const reply = await chatAssistant(chatHistory.filter(m => !m.thinking));
+      chatHistory = chatHistory.filter(m => !m.thinking);
+      chatHistory.push({ role: "assistant", content: reply });
+    } catch (ex) {
+      chatHistory = chatHistory.filter(m => !m.thinking);
+      chatHistory.push({ role: "assistant", content: "Sorry — couldn't reach the AI. Try again in a moment." });
+    }
+    renderAssistant(el);
+  };
+  document.getElementById("chat-send").addEventListener("click", send);
+  document.getElementById("chat-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+}
+
+// ============================================================
+// Boot
+// ============================================================
+render();
+</script>
+</body>
+</html>
