@@ -120,6 +120,27 @@
   .app-chip:hover { border-color: var(--primary); background: rgba(124,92,255,0.1); }
   .model-notes { padding: 10px 18px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border-soft); background: rgba(124,92,255,0.04); }
   .anim-caption { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); color: white; padding: 10px 18px; border-radius: 999px; font-size: 13px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.4); pointer-events: none; max-width: 80%; text-align: center; z-index: 5; }
+  /* Scan page */
+  .scan-wrap { max-width: 720px; margin: 24px auto; }
+  .scan-viewfinder { background: var(--bg-2); border: 1px solid var(--border); border-radius: 18px; aspect-ratio: 4/3; display: grid; place-items: center; overflow: hidden; position: relative; }
+  .scan-viewfinder video, .scan-viewfinder img { width: 100%; height: 100%; object-fit: cover; }
+  .scan-empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .scan-empty .empty-icon { width: 56px; height: 56px; margin: 0 auto 14px; color: var(--muted); }
+  .scan-empty .empty-icon svg { width: 100%; height: 100%; }
+  .scan-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; padding: 18px 0; }
+  .scan-controls .btn { width: auto; padding: 10px 18px; }
+  .scan-tip { font-size: 12px; color: var(--muted); text-align: center; padding-bottom: 20px; }
+  /* Scan modes + batch strip */
+  .scan-mode-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .scan-mode-chip { background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 8px 16px; font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.12s; font-family: inherit; }
+  .scan-mode-chip:hover { color: var(--text); border-color: var(--primary); }
+  .scan-mode-chip.active { background: rgba(124,92,255,0.18); color: var(--primary-2); border-color: var(--primary); font-weight: 600; }
+  .scan-rec-indicator { position: absolute; top: 12px; left: 12px; background: rgba(220,38,38,0.95); color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 999px; animation: scan-pulse 1.4s ease-in-out infinite; z-index: 3; }
+  @keyframes scan-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+  .scan-batch-strip { display: flex; gap: 6px; overflow-x: auto; padding: 10px 4px; flex-wrap: nowrap; }
+  .scan-thumb { width: 72px; height: 72px; min-width: 72px; border-radius: 10px; background-size: cover; background-position: center; position: relative; border: 1px solid var(--border); }
+  .scan-thumb-remove { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.75); color: white; border: none; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; line-height: 1; cursor: pointer; padding: 0; }
+  .scan-thumb-num { position: absolute; bottom: 2px; left: 4px; background: rgba(0,0,0,0.7); color: white; font-size: 10px; padding: 1px 5px; border-radius: 4px; font-weight: 600; }
   /* Doom Printing swipe deck */
   .doom-deck { max-width: 420px; margin: 24px auto; position: relative; }
   .doom-card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; overflow: hidden; box-shadow: 0 14px 40px rgba(0,0,0,0.5); }
@@ -545,6 +566,13 @@ function export3MF() {
 // ============================================================
 async function sendToApp(app) {
   if (!viewerGroup) return alert("Generate something first");
+  // 1) If the Knox Forge Desktop Helper is installed, use it — true 1-click open.
+  //    The helper handles knox-forge://send?app=<app>&stl=<base64> protocol URLs.
+  //    Detection trick: try to navigate to a knox-forge:// URL and listen for blur.
+  //    If the helper is installed, the OS opens it and our tab loses focus briefly.
+  if (await tryDesktopHelper(app)) return;
+
+  // 2) Fall back to Web Share API + downloaded file (the original Path A)
   const apps = {
     bambu: {
       name: "Bambu Studio",
@@ -612,6 +640,54 @@ async function sendToApp(app) {
   // Fallback: download + clear instructions
   downloadBlob(filename, stlText, "model/stl");
   showToast(cfg.fallback, 9000, cfg.web);
+}
+
+// Try to launch Knox Forge Desktop Helper via knox-forge:// protocol.
+// Returns true if the helper was likely invoked (browser lost focus).
+// If the helper isn't installed, the browser does nothing and we fall through.
+async function tryDesktopHelper(app) {
+  if (!viewerGroup) return false;
+  // Build the STL as base64 — URI-safe via Uint8Array → btoa
+  const exp = new STLExporter();
+  const stlText = exp.parse(viewerGroup, { binary: false });
+  // base64-encode the STL text safely
+  let stlB64;
+  try {
+    stlB64 = btoa(unescape(encodeURIComponent(stlText)));
+  } catch (e) {
+    return false;
+  }
+  // Hard cap: protocol URLs have a length limit (~2KB on Windows). Big models
+  // would exceed it. Above 1.5MB of base64 we skip helper and fall to download.
+  if (stlB64.length > 1_500_000) return false;
+
+  const safeName = (lastSpec?.name || "knox-forge").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
+  const protoUrl = `knox-forge://send?app=${encodeURIComponent(app)}&name=${encodeURIComponent(safeName)}&stl=${encodeURIComponent(stlB64)}`;
+
+  // Detect helper presence via blur event after firing the URL.
+  // If the helper exists, the OS launches it and our window briefly loses focus.
+  return new Promise((resolve) => {
+    let blurred = false;
+    const onBlur = () => { blurred = true; };
+    window.addEventListener("blur", onBlur, { once: true });
+
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = protoUrl;
+    document.body.appendChild(iframe);
+
+    setTimeout(() => {
+      window.removeEventListener("blur", onBlur);
+      try { iframe.remove(); } catch {}
+      if (blurred) {
+        showToast(`Sent to ${app}. The app should open with your model loaded.`, 5000);
+        resolve(true);
+      } else {
+        // Helper not installed — caller will fall back to Web Share / download
+        resolve(false);
+      }
+    }, 800);
+  });
 }
 
 // Tiny toast — used for "saved", export hints, etc.
@@ -1048,19 +1124,350 @@ async function runAnimation(script) {
   });
 }
 
-// ───── Scan (placeholder for now) ─────
+// ───── Scan — three modes: single photo / multi-angle batch / video ─────
+let scanStream = null;
+let scanLastPhoto = null;            // single mode
+let scanBatchPhotos = [];            // multi-angle mode: [{mime, base64, dataUrl}, ...]
+let scanRecorder = null;             // video mode MediaRecorder
+let scanRecordChunks = [];           // video mode recorded blob chunks
+let scanMode = "single";             // "single" | "batch" | "video"
+
+async function startScanCamera(videoEl) {
+  if (scanStream) {
+    for (const t of scanStream.getTracks()) t.stop();
+    scanStream = null;
+  }
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false,
+    });
+    videoEl.srcObject = scanStream;
+    await videoEl.play().catch(() => {});
+  } catch (err) {
+    throw err;
+  }
+}
+
+function stopScanCamera() {
+  if (scanStream) {
+    for (const t of scanStream.getTracks()) t.stop();
+    scanStream = null;
+  }
+}
+
+function captureScanPhoto(videoEl) {
+  const canvas = document.createElement("canvas");
+  const vw = videoEl.videoWidth || 1280;
+  const vh = videoEl.videoHeight || 720;
+  canvas.width = vw;
+  canvas.height = vh;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(videoEl, 0, 0, vw, vh);
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+  const m = dataUrl.match(/^data:(image\/[a-z+]+);base64,(.+)$/);
+  if (!m) return null;
+  return { mime: m[1], base64: m[2], dataUrl };
+}
+
+async function scanGenerateFromImages(images, hint) {
+  // images: [{mime, base64}, ...]  hint: optional text override
+  if (!images || images.length === 0) throw new Error("No images to send");
+  const endpoint = images.length === 1 ? "/api/ai/forge-model" : "/api/ai/forge-scan";
+  const body = images.length === 1
+    ? { input: hint || "Identify the object in this photo and generate a 3D-printable model that matches its shape and real-world dimensions.", presets: ["model"], imageBase64: images[0].base64, imageMimeType: images[0].mime || "image/jpeg" }
+    : { imagesBase64: images.map(i => i.base64), hint: hint || "" };
+  const r = await fetch(`${NEXUS_API_BASE}${endpoint}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const j = await r.json();
+  if (!r.ok || j.ok === false) throw new Error(j.error || `Scan failed (${r.status})`);
+  if (!j.parts || !Array.isArray(j.parts) || j.parts.length === 0) throw new Error("AI returned an empty model — try better/more angles");
+  return j;
+}
+
+// Extract evenly-spaced keyframes from a recorded video blob
+async function extractVideoFrames(blob, targetCount = 12) {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+    video.muted = true; video.playsInline = true;
+    video.src = URL.createObjectURL(blob);
+    video.addEventListener("loadedmetadata", async () => {
+      const duration = isFinite(video.duration) ? video.duration : 10;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const frames = [];
+      const count = Math.max(2, Math.min(16, targetCount));
+      for (let i = 0; i < count; i++) {
+        const t = (duration * (i + 0.5)) / count;
+        await new Promise((res) => {
+          const onSeeked = () => { video.removeEventListener("seeked", onSeeked); res(); };
+          video.addEventListener("seeked", onSeeked);
+          video.currentTime = t;
+        });
+        canvas.width = video.videoWidth || 720;
+        canvas.height = video.videoHeight || 540;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
+        const m = dataUrl.match(/^data:(image\/[a-z+]+);base64,(.+)$/);
+        if (m) frames.push({ mime: m[1], base64: m[2], dataUrl });
+      }
+      URL.revokeObjectURL(video.src);
+      resolve(frames);
+    });
+    video.addEventListener("error", reject);
+  });
+}
+
 function renderScan(el) {
   el.innerHTML = `
     <header class="page-header">
       <div class="page-title">Scan</div>
-      <div class="page-sub">Capture real-world objects, turn them into a 3D model. Photo + AI mesh reconstruction.</div>
+      <div class="page-sub">Point your camera at any real object. AI identifies it and builds a 3D-printable model sized to the real thing.</div>
     </header>
-    <div class="empty">
-      <div class="empty-icon">${ICONS.scan}</div>
-      <h2>Scanning is coming next</h2>
-      <p>iPhone LiDAR + photo capture + AI mesh reconstruction. Right now this needs a native iOS wrapper for full LiDAR access. Phase 2 will ship photo-batch capture in the browser — you take photos, we send them through a photogrammetry pipeline.</p>
+
+    <div class="scan-wrap">
+      <div class="scan-mode-row">
+        <button class="scan-mode-chip ${scanMode === "single" ? "active" : ""}" data-mode="single">📷 Single photo</button>
+        <button class="scan-mode-chip ${scanMode === "batch" ? "active" : ""}" data-mode="batch">🖼️ Multi-angle (best)</button>
+        <button class="scan-mode-chip ${scanMode === "video" ? "active" : ""}" data-mode="video">🎬 Video pan</button>
+      </div>
+
+      <div class="scan-viewfinder">
+        <video id="scan-video" playsinline autoplay muted style="display:none"></video>
+        <img id="scan-preview" style="display:none" />
+        <div id="scan-rec-indicator" class="scan-rec-indicator" style="display:none">● REC</div>
+        <div id="scan-empty" class="scan-empty">
+          <div class="empty-icon">${ICONS.scan}</div>
+          <p>Camera off. Tap Start camera to begin.</p>
+        </div>
+      </div>
+
+      <div id="scan-batch-strip" class="scan-batch-strip" style="display:none"></div>
+
+      <div class="scan-controls" id="scan-controls"></div>
+
+      <div class="scan-tip" id="scan-tip">${
+        scanMode === "single" ? "Tip: well-lit object, plain background. AI uses one view to ID + size the model." :
+        scanMode === "batch" ? "Tip: capture 6-12 photos from different angles (front, side, top, back, 3/4 views). More views = more accurate model. Max 16." :
+        "Tip: record a 5-15 second slow pan around the object. AI extracts 12 keyframes and reasons across them."
+      }</div>
     </div>
   `;
+
+  const video = document.getElementById("scan-video");
+  const preview = document.getElementById("scan-preview");
+  const empty = document.getElementById("scan-empty");
+  const recIndicator = document.getElementById("scan-rec-indicator");
+  const batchStrip = document.getElementById("scan-batch-strip");
+  const controls = document.getElementById("scan-controls");
+
+  // Mode switch
+  document.querySelectorAll(".scan-mode-chip[data-mode]").forEach(b => b.addEventListener("click", () => {
+    scanMode = b.dataset.mode;
+    scanLastPhoto = null;
+    scanBatchPhotos = [];
+    if (scanRecorder && scanRecorder.state === "recording") scanRecorder.stop();
+    scanRecorder = null;
+    scanRecordChunks = [];
+    stopScanCamera();
+    renderScan(el);
+  }));
+
+  function refreshControls() {
+    if (scanMode === "single") {
+      controls.innerHTML = `
+        <button class="btn btn-secondary" id="scan-start">${ICONS.scan} <span style="margin-left:6px">Start camera</span></button>
+        <button class="btn btn-primary" id="scan-capture" disabled>📸 <span style="margin-left:6px">Capture</span></button>
+        <button class="btn btn-secondary" id="scan-retake" style="display:none">↺ <span style="margin-left:6px">Retake</span></button>
+        <button class="btn btn-primary" id="scan-generate" style="display:none">${ICONS.sparkles}<span style="margin-left:6px">Generate model</span></button>
+      `;
+      wireSingleMode();
+    } else if (scanMode === "batch") {
+      controls.innerHTML = `
+        <button class="btn btn-secondary" id="scan-start">${ICONS.scan} <span style="margin-left:6px">Start camera</span></button>
+        <button class="btn btn-primary" id="scan-capture" disabled>📸 <span style="margin-left:6px">Capture angle (${scanBatchPhotos.length}/16)</span></button>
+        <button class="btn btn-secondary" id="scan-clear-batch" ${scanBatchPhotos.length === 0 ? "disabled" : ""}>🗑 <span style="margin-left:6px">Clear all</span></button>
+        <button class="btn btn-primary" id="scan-generate" ${scanBatchPhotos.length < 2 ? "disabled" : ""}>${ICONS.sparkles}<span style="margin-left:6px">Generate from ${scanBatchPhotos.length} view${scanBatchPhotos.length === 1 ? "" : "s"}</span></button>
+      `;
+      wireBatchMode();
+    } else if (scanMode === "video") {
+      controls.innerHTML = `
+        <button class="btn btn-secondary" id="scan-start">${ICONS.scan} <span style="margin-left:6px">Start camera</span></button>
+        <button class="btn btn-primary" id="scan-record-start" disabled>🔴 <span style="margin-left:6px">Start recording</span></button>
+        <button class="btn btn-primary" id="scan-record-stop" style="display:none">⏹ <span style="margin-left:6px">Stop & process</span></button>
+      `;
+      wireVideoMode();
+    }
+  }
+  refreshControls();
+
+  // --- shared camera startup ---
+  function bindStartCamera() {
+    const startBtn = document.getElementById("scan-start");
+    if (!startBtn) return;
+    startBtn.addEventListener("click", async () => {
+      startBtn.disabled = true;
+      startBtn.innerHTML = `<span class="spinner"></span> Camera…`;
+      try {
+        await startScanCamera(video);
+        empty.style.display = "none";
+        preview.style.display = "none";
+        video.style.display = "block";
+        const capBtn = document.getElementById("scan-capture");
+        const recStart = document.getElementById("scan-record-start");
+        if (capBtn) capBtn.disabled = false;
+        if (recStart) recStart.disabled = false;
+        startBtn.innerHTML = `${ICONS.scan} <span style="margin-left:6px">Switch camera</span>`;
+        startBtn.disabled = false;
+      } catch (err) {
+        startBtn.disabled = false;
+        startBtn.innerHTML = `${ICONS.scan} <span style="margin-left:6px">Start camera</span>`;
+        const reason = err?.name === "NotAllowedError" ? "Camera blocked. Allow it in Chrome's site settings." :
+                       err?.name === "NotFoundError" ? "No camera detected." :
+                       "Couldn't start camera: " + (err?.message || "unknown");
+        showToast(reason, 6000);
+      }
+    });
+  }
+
+  // --- Single mode ---
+  function wireSingleMode() {
+    bindStartCamera();
+    document.getElementById("scan-capture")?.addEventListener("click", () => {
+      const photo = captureScanPhoto(video);
+      if (!photo) return showToast("Couldn't capture");
+      scanLastPhoto = { mime: photo.mime, base64: photo.base64 };
+      preview.src = photo.dataUrl;
+      video.style.display = "none";
+      preview.style.display = "block";
+      document.getElementById("scan-capture").style.display = "none";
+      document.getElementById("scan-retake").style.display = "inline-flex";
+      document.getElementById("scan-generate").style.display = "inline-flex";
+      stopScanCamera();
+    });
+    document.getElementById("scan-retake")?.addEventListener("click", async () => {
+      scanLastPhoto = null;
+      preview.style.display = "none";
+      video.style.display = "block";
+      document.getElementById("scan-capture").style.display = "inline-flex";
+      document.getElementById("scan-capture").disabled = false;
+      document.getElementById("scan-retake").style.display = "none";
+      document.getElementById("scan-generate").style.display = "none";
+      try { await startScanCamera(video); } catch {}
+    });
+    document.getElementById("scan-generate")?.addEventListener("click", () => runScanGenerate([scanLastPhoto], "single-photo"));
+  }
+
+  // --- Batch mode (multi-angle) ---
+  function refreshBatchStrip() {
+    if (scanBatchPhotos.length === 0) { batchStrip.style.display = "none"; return; }
+    batchStrip.style.display = "flex";
+    batchStrip.innerHTML = scanBatchPhotos.map((p, i) => `
+      <div class="scan-thumb" style="background-image:url('${p.dataUrl}')">
+        <button class="scan-thumb-remove" data-i="${i}" title="Remove">✕</button>
+        <span class="scan-thumb-num">${i + 1}</span>
+      </div>
+    `).join("");
+    batchStrip.querySelectorAll(".scan-thumb-remove").forEach(b => b.addEventListener("click", (e) => {
+      const idx = Number(b.dataset.i);
+      scanBatchPhotos.splice(idx, 1);
+      refreshBatchStrip();
+      refreshControls();
+    }));
+  }
+  function wireBatchMode() {
+    bindStartCamera();
+    refreshBatchStrip();
+    document.getElementById("scan-capture")?.addEventListener("click", () => {
+      if (scanBatchPhotos.length >= 16) return showToast("16-view max. Remove some to add more.", 4000);
+      const photo = captureScanPhoto(video);
+      if (!photo) return showToast("Couldn't capture");
+      scanBatchPhotos.push(photo);
+      refreshBatchStrip();
+      refreshControls();
+    });
+    document.getElementById("scan-clear-batch")?.addEventListener("click", () => {
+      if (scanBatchPhotos.length === 0) return;
+      if (!confirm(`Clear all ${scanBatchPhotos.length} photos?`)) return;
+      scanBatchPhotos = [];
+      refreshBatchStrip();
+      refreshControls();
+    });
+    document.getElementById("scan-generate")?.addEventListener("click", () => runScanGenerate(scanBatchPhotos, "multi-angle"));
+  }
+
+  // --- Video mode ---
+  function wireVideoMode() {
+    bindStartCamera();
+    document.getElementById("scan-record-start")?.addEventListener("click", () => {
+      if (!scanStream) return showToast("Start the camera first");
+      scanRecordChunks = [];
+      // Pick the best codec the browser supports
+      const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9"
+                 : MediaRecorder.isTypeSupported("video/webm;codecs=vp8") ? "video/webm;codecs=vp8"
+                 : MediaRecorder.isTypeSupported("video/webm") ? "video/webm"
+                 : MediaRecorder.isTypeSupported("video/mp4") ? "video/mp4"
+                 : "";
+      if (!mime) return showToast("Your browser can't record video. Use multi-angle photo mode instead.");
+      try {
+        scanRecorder = new MediaRecorder(scanStream, { mimeType: mime });
+        scanRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) scanRecordChunks.push(e.data); };
+        scanRecorder.onstop = async () => {
+          recIndicator.style.display = "none";
+          const blob = new Blob(scanRecordChunks, { type: mime });
+          showToast("Extracting frames…", 3000);
+          try {
+            const frames = await extractVideoFrames(blob, 12);
+            if (frames.length === 0) throw new Error("Couldn't extract frames");
+            // Show first frame as preview
+            video.style.display = "none";
+            preview.src = frames[0].dataUrl;
+            preview.style.display = "block";
+            stopScanCamera();
+            runScanGenerate(frames, "video-pan");
+          } catch (e) {
+            showToast("Frame extraction failed: " + e.message, 5000);
+            document.getElementById("scan-record-stop").style.display = "none";
+            document.getElementById("scan-record-start").style.display = "inline-flex";
+          }
+        };
+        scanRecorder.start();
+        recIndicator.style.display = "block";
+        document.getElementById("scan-record-start").style.display = "none";
+        document.getElementById("scan-record-stop").style.display = "inline-flex";
+        // Auto-stop after 15 seconds
+        setTimeout(() => { if (scanRecorder && scanRecorder.state === "recording") scanRecorder.stop(); }, 15000);
+      } catch (e) {
+        showToast("Couldn't start recording: " + e.message, 5000);
+      }
+    });
+    document.getElementById("scan-record-stop")?.addEventListener("click", () => {
+      if (scanRecorder && scanRecorder.state === "recording") scanRecorder.stop();
+    });
+  }
+
+  // --- shared: run scan AI + route to Forge ---
+  async function runScanGenerate(images, modeLabel) {
+    const genBtn = document.getElementById("scan-generate") || document.getElementById("scan-record-stop");
+    if (genBtn) { genBtn.disabled = true; genBtn.innerHTML = `<span class="spinner"></span> Analyzing ${images.length} view${images.length === 1 ? "" : "s"}…`; }
+    try {
+      const spec = await scanGenerateFromImages(images, "");
+      lastSpec = spec;
+      lastPrompt = `(scanned via ${modeLabel}, ${images.length} view${images.length === 1 ? "" : "s"})`;
+      currentRoute = "forge";
+      const mainEl = document.querySelector(".main");
+      renderForge(mainEl);
+      const confLabel = spec.confidence ? ` (confidence: ${spec.confidence})` : "";
+      const idLabel = spec.identifiedObject ? `Identified: ${spec.identifiedObject}${confLabel}.` : "Model generated.";
+      showToast(`${idLabel} View + export in Forge.`, 8000);
+    } catch (e) {
+      showToast("Scan failed: " + (e.message || "unknown"), 8000);
+      if (genBtn) { genBtn.disabled = false; refreshControls(); }
+    }
+  }
 }
 
 // ───── Doom Printing (the Tinder-swipe feed for 3D models) ─────
