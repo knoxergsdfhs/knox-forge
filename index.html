@@ -240,47 +240,18 @@ async function createAccount(identifier, password) {
 // Forge — AI prompt → primitive spec → Three.js geometry
 // ============================================================
 async function generateModelFromPrompt(prompt, presets = []) {
-  // Ask Gemini for a JSON primitive spec
-  const r = await fetch(`${NEXUS_API_BASE}/api/ai/command`, {
+  const r = await fetch(`${NEXUS_API_BASE}/api/ai/forge-model`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      command: `[KNOX-FORGE] Generate a 3D model spec for: "${prompt}"${presets.length ? ` (preset hints: ${presets.join(", ")})` : ""}.
-
-Respond with ONLY this JSON (no prose, no code fences):
-{
-  "name": "short descriptive name",
-  "description": "one sentence about what it is",
-  "units": "mm",
-  "parts": [
-    { "kind": "box"|"sphere"|"cylinder"|"cone"|"torus", "size": [w,h,d] OR "radius": n OR custom, "position": [x,y,z], "rotation": [rx,ry,rz] in degrees, "color": "#hex" (optional), "op": "add"|"subtract" (default "add") }
-  ],
-  "estimatedDimensions": "Width x Height x Depth in mm"
-}
-
-All measurements in millimeters. Position [0,0,0] is the center. Build from primitives — cubes, spheres, cylinders, cones, toruses. Use boolean ops (subtract) for holes/cutouts. Aim for 3-12 parts. Be specific with numeric values.`,
-      actions: [{ name: "generate_model_spec", description: "Returns the JSON model spec." }],
-    }),
+    body: JSON.stringify({ input: prompt, presets }),
   });
   const j = await r.json();
   if (!r.ok) throw new Error(j.error || `Generation failed (${r.status})`);
-  // The command endpoint returns { actions: [...] }. We piggyback the JSON in the freeform reply.
-  // Try several spots where the spec might live:
-  let spec = null;
-  if (j.actions && j.actions[0] && j.actions[0].params) spec = j.actions[0].params;
-  if (!spec && j.reply) {
-    const m = j.reply.match(/\{[\s\S]*\}/);
-    if (m) { try { spec = JSON.parse(m[0]); } catch {} }
+  if (j.ok === false) throw new Error(j.error || "AI didn't return a usable spec");
+  if (!j.parts || !Array.isArray(j.parts) || j.parts.length === 0) {
+    throw new Error("AI returned an empty model — try a more specific prompt");
   }
-  if (!spec && typeof j === "object" && j.parts) spec = j;
-  if (!spec || !Array.isArray(spec.parts)) {
-    // Fallback: parse the whole response as JSON
-    try { spec = JSON.parse(JSON.stringify(j)); } catch {}
-  }
-  if (!spec || !Array.isArray(spec.parts) || spec.parts.length === 0) {
-    throw new Error("AI didn't return a usable spec — try a more specific prompt");
-  }
-  return spec;
+  return j;
 }
 
 function buildThreeGroupFromSpec(spec) {
@@ -458,17 +429,23 @@ const ASSISTANT_SYSTEM = `You are Knox Forge's AI assistant. You're an expert in
 Style: helpful, direct, concise. Use bullet points for steps and troubleshooting lists. Don't preface with "Great question!" or similar fluff. If a question isn't about 3D printing or this app, gently redirect.`;
 
 async function chatAssistant(history) {
-  const r = await fetch(`${NEXUS_API_BASE}/api/ai/command`, {
+  const r = await fetch(`${NEXUS_API_BASE}/api/ai/forge-chat`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      command: ASSISTANT_SYSTEM + "\n\n--- Conversation ---\n" + history.map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n\n") + "\n\nAssistant:",
-      actions: [{ name: "reply", description: "Plain text reply." }],
+      history: history.map(m => ({
+        role: m.role === "user" ? "user" : "assistant",
+        content: String(m.content || ""),
+      })),
     }),
   });
-  const j = await r.json();
-  // Try multiple shapes
-  let reply = j.reply || j.actions?.[0]?.params?.text || j.actions?.[0]?.params?.reply;
+  let j;
+  try { j = await r.json(); } catch { j = {}; }
+  if (!r.ok) {
+    const msg = j && j.error ? j.error : `Assistant unavailable (${r.status})`;
+    return `Sorry — ${msg}. Try again in a moment.`;
+  }
+  let reply = j && (j.reply || j.text || j.message);
   if (!reply && typeof j === "string") reply = j;
   if (!reply) reply = "Sorry, I couldn't generate a response. Try again?";
   return reply;
