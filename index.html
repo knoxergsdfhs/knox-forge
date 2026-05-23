@@ -307,6 +307,24 @@
   .ref-image-preview { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 4px 10px 4px 4px; font-size: 12px; color: var(--text); }
   .ref-image-preview img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; }
   .ref-image-remove { background: none; border: none; color: #ff5c7a; cursor: pointer; font-size: 16px; padding: 0 4px; }
+  /* Viewer view controls (camera + wireframe + JSON inspector) */
+  .view-controls { display: flex; gap: 6px; padding: 8px 18px; border-top: 1px solid var(--border-soft); background: rgba(124,92,255,0.02); align-items: center; flex-wrap: wrap; }
+  .vc-btn { background: var(--bg-2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 11px; font-size: 11px; color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+  .vc-btn:hover { color: var(--text); border-color: var(--primary); }
+  /* Cloud sync status indicator */
+  .cloud-status { position: fixed; bottom: 12px; left: 12px; padding: 4px 10px; border-radius: 999px; font-size: 10px; background: var(--card); border: 1px solid var(--border); color: var(--muted); pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 100; }
+  .cloud-status.visible { opacity: 1; }
+  .cloud-status.syncing { color: var(--primary-2); }
+  .cloud-status.synced { color: #86efac; }
+  .cloud-status.error { color: #fca5a5; }
+  /* Doom Printing category filter chips */
+  .doom-filter-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; padding: 8px 0 16px; max-width: 700px; margin: 0 auto; }
+  .doom-filter-chip { background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; font-size: 11px; color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+  .doom-filter-chip:hover { color: var(--text); }
+  .doom-filter-chip.active { background: rgba(124,92,255,0.15); color: var(--primary-2); border-color: var(--primary); font-weight: 600; }
+  /* Tags on saved models */
+  .model-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .model-tag { font-size: 9px; padding: 2px 7px; background: rgba(124,92,255,0.12); color: var(--primary-2); border-radius: 999px; }
   /* Doom Printing swipe deck */
   .doom-deck { max-width: 420px; margin: 24px auto; position: relative; }
   .doom-card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; overflow: hidden; box-shadow: 0 14px 40px rgba(0,0,0,0.5); }
@@ -1624,9 +1642,45 @@ function deleteSavedModel(id) {
 // Cloud sync — store My Models inside the user's profile.data.forgeModels
 // localStorage stays as the fast cache. Cloud is authoritative on login.
 // ============================================================
+function showCloudStatus(state, msg) {
+  let host = document.getElementById("cloud-status");
+  if (!host) {
+    host = document.createElement("div");
+    host.id = "cloud-status";
+    host.className = "cloud-status";
+    document.body.appendChild(host);
+  }
+  host.className = "cloud-status visible " + state;
+  host.textContent = msg;
+  if (state === "synced") {
+    clearTimeout(host._t);
+    host._t = setTimeout(() => { host.classList.remove("visible"); }, 2500);
+  }
+}
+
+// Auto-tag a model based on name/prompt keywords
+function inferModelTags(model) {
+  const text = ((model.name || "") + " " + (model.prompt || "")).toLowerCase();
+  const tags = [];
+  if (/phone|case|cradle|stand.*phone/.test(text)) tags.push("phone");
+  if (/pencil|pen|writing/.test(text)) tags.push("desk");
+  if (/cable|wire|cord|usb/.test(text)) tags.push("cable");
+  if (/coaster|cup|mug|drink/.test(text)) tags.push("drink");
+  if (/planter|plant|pot|vase/.test(text)) tags.push("plant");
+  if (/hook|hanger|mount|bracket/.test(text)) tags.push("mount");
+  if (/box|case|container|storage/.test(text)) tags.push("storage");
+  if (/hinge|joint|articulate/.test(text)) tags.push("mechanical");
+  if (/tpu|flexible|soft/.test(text)) tags.push("tpu");
+  if (/resin|sla|fine/.test(text)) tags.push("resin");
+  if (/toy|fun|fidget/.test(text)) tags.push("toy");
+  if (/gear|cog|threaded/.test(text)) tags.push("mechanical");
+  return tags;
+}
+
 async function syncModelsToCloud(models) {
   const session = getSession();
   if (!session?.id) return;
+  showCloudStatus("syncing", "☁ syncing…");
   // Strip thumbnails before sending — they bloat the payload massively.
   // We keep thumbnails local-only; on a fresh device they get regenerated
   // when the user re-opens a model in Forge.
@@ -1644,8 +1698,9 @@ async function syncModelsToCloud(models) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ id: session.id, profile: newProfile }),
     });
+    showCloudStatus("synced", "☁ synced");
   } catch {
-    // Silent — local copy is still safe. We'll retry next save.
+    showCloudStatus("error", "☁ offline (saved locally)");
   }
 }
 
@@ -1912,6 +1967,15 @@ function renderForge(el) {
       </div>
       ${lastSpec?.notes ? `<div class="model-notes">📝 ${escapeHtml(lastSpec.notes)}</div>` : ""}
       ${lastSpec ? renderPrintInfo(lastSpec) : ""}
+      ${lastSpec ? `<div class="view-controls">
+        <button class="vc-btn" data-view="iso" title="Isometric view">⛶ Iso</button>
+        <button class="vc-btn" data-view="top" title="Top down">↧ Top</button>
+        <button class="vc-btn" data-view="front" title="Front">▢ Front</button>
+        <button class="vc-btn" data-view="side" title="Side">▤ Side</button>
+        <span style="flex:1"></span>
+        <button class="vc-btn" data-view="wireframe" title="Wireframe toggle">⌨ Wire</button>
+        <button class="vc-btn" data-view="spec" title="View raw JSON spec">{ } JSON</button>
+      </div>` : ""}
       <div class="viewer-toolbar">
         <button class="btn btn-primary" id="see-in-action" ${!lastSpec ? "disabled" : ""} title="Watch a 3D demo of how this model is actually used">▶ <span style="margin-left:6px">See it in action</span></button>
         <button class="btn btn-secondary" id="export-stl" title="Standard mesh format — works with everything">${ICONS.download}<span style="margin-left:6px">STL</span></button>
@@ -2013,6 +2077,88 @@ function renderForge(el) {
   document.querySelectorAll(".app-chip[data-app]").forEach(b => b.addEventListener("click", () => sendToApp(b.dataset.app)));
   document.getElementById("see-in-action")?.addEventListener("click", playSeeInAction);
   bindPrintInfoControls(el);
+  // View control buttons (camera presets + wireframe + JSON)
+  document.querySelectorAll(".vc-btn[data-view]").forEach(b => b.addEventListener("click", () => {
+    const v = b.dataset.view;
+    if (v === "wireframe") return toggleWireframe();
+    if (v === "spec") return showJsonInspector(el);
+    return setCameraPreset(v);
+  }));
+}
+
+function setCameraPreset(preset) {
+  if (!viewerControls || !viewerCamera || !viewerGroup) return;
+  const box = new THREE.Box3().setFromObject(viewerGroup);
+  const size = box.getSize(new THREE.Vector3()).length() || 100;
+  const center = box.getCenter(new THREE.Vector3());
+  const dist = size * 1.6;
+  const positions = {
+    iso:   [center.x + dist * 0.7, center.y + dist * 0.5, center.z + dist * 0.7],
+    top:   [center.x, center.y + dist, center.z + 0.001],
+    front: [center.x, center.y, center.z + dist],
+    side:  [center.x + dist, center.y, center.z],
+  };
+  const p = positions[preset] || positions.iso;
+  viewerCamera.position.set(p[0], p[1], p[2]);
+  viewerControls.target.copy(center);
+  viewerControls.update();
+}
+
+let _wireframeOn = false;
+function toggleWireframe() {
+  _wireframeOn = !_wireframeOn;
+  if (!viewerGroup) return;
+  viewerGroup.traverse(obj => {
+    if (obj.isMesh && obj.material) {
+      if (Array.isArray(obj.material)) obj.material.forEach(m => m.wireframe = _wireframeOn);
+      else obj.material.wireframe = _wireframeOn;
+    }
+  });
+  showToast(_wireframeOn ? "Wireframe ON" : "Wireframe OFF", 1500, null, "info");
+}
+
+function showJsonInspector(el) {
+  if (!lastSpec) return;
+  const modal = document.createElement("div");
+  modal.className = "forge-modal";
+  modal.innerHTML = `
+    <div class="forge-modal-card" style="max-width:760px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="forge-modal-title">Spec inspector</div>
+        <button class="link-btn" id="ji-close" style="font-size:18px;text-decoration:none">✕</button>
+      </div>
+      <div class="forge-modal-sub">Raw JSON for the current model. Edit + Apply to override what the AI built.</div>
+      <textarea id="ji-text" style="width:100%;height:400px;font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--bg-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:12px;resize:vertical">${escapeHtml(JSON.stringify(lastSpec, null, 2))}</textarea>
+      <div style="display:flex;gap:10px;justify-content:space-between;margin-top:12px">
+        <button class="btn btn-secondary" id="ji-copy" style="width:auto;padding:8px 14px;font-size:12px">📋 Copy JSON</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" id="ji-cancel" style="width:auto;padding:8px 14px;font-size:12px">Cancel</button>
+          <button class="btn btn-primary" id="ji-apply" style="width:auto;padding:8px 14px;font-size:12px">Apply changes</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
+  document.getElementById("ji-close").addEventListener("click", () => modal.remove());
+  document.getElementById("ji-cancel").addEventListener("click", () => modal.remove());
+  document.getElementById("ji-copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(JSON.stringify(lastSpec, null, 2)); showToast("Copied to clipboard", 2000, null, "success"); } catch { showToast("Couldn't copy — select and copy manually", 3000, null, "warn"); }
+  });
+  document.getElementById("ji-apply").addEventListener("click", () => {
+    const text = document.getElementById("ji-text").value;
+    try {
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed.parts)) throw new Error("Spec must have a 'parts' array");
+      lastSpec = parsed;
+      setViewerModel(lastSpec);
+      modal.remove();
+      renderForge(el);
+      showToast("Spec applied", 2000, null, "success");
+    } catch (e) {
+      showToast("Invalid JSON: " + e.message, 5000, null, "error");
+    }
+  });
 }
 
 // ============================================================
@@ -2619,7 +2765,8 @@ function renderModels(el) {
               <div class="model-card-title">${escapeHtml(m.name)}</div>
               <div class="model-card-prompt">${escapeHtml((m.prompt || "").slice(0, 90))}${(m.prompt || "").length > 90 ? "…" : ""}</div>
               <div class="model-card-meta">${m.spec?.parts?.length || 0} parts · ${m.spec?.estimatedDimensions || "—"} · ${new Date(m.savedAt).toLocaleDateString()}</div>
-              <button class="btn btn-primary model-card-open" data-load="${m.id}">${ICONS.sparkles}<span style="margin-left:6px">Open in Forge</span></button>
+              ${(() => { const tags = inferModelTags(m); return tags.length ? `<div class="model-tags">${tags.map(t => `<span class="model-tag">${escapeHtml(t)}</span>`).join("")}</div>` : ""; })()}
+              <button class="btn btn-primary model-card-open" data-load="${m.id}" style="margin-top:8px">${ICONS.sparkles}<span style="margin-left:6px">Open in Forge</span></button>
             </div>
           </div>
         `).join("")}
