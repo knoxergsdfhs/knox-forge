@@ -1122,20 +1122,59 @@ function setTheme(t) {
 // Print estimates — volume, weight, time, cost per printer profile
 // ============================================================
 const PRINTER_PROFILES = {
+  // Bambu Lab — full lineup
   "bambu-x1c":    { name: "Bambu Lab X1C",      bedX: 256, bedY: 256, bedZ: 256, flowRate: 25, layerHeight: 0.2, multiplier: 1.0 },
+  "bambu-x1e":    { name: "Bambu Lab X1E",      bedX: 256, bedY: 256, bedZ: 256, flowRate: 28, layerHeight: 0.2, multiplier: 0.95 },
   "bambu-p1s":    { name: "Bambu Lab P1S",      bedX: 256, bedY: 256, bedZ: 256, flowRate: 22, layerHeight: 0.2, multiplier: 1.1 },
   "bambu-p1p":    { name: "Bambu Lab P1P",      bedX: 256, bedY: 256, bedZ: 256, flowRate: 20, layerHeight: 0.2, multiplier: 1.1 },
+  "bambu-p2s":    { name: "Bambu Lab P2S",      bedX: 256, bedY: 256, bedZ: 256, flowRate: 24, layerHeight: 0.2, multiplier: 1.05 },
   "bambu-a1":     { name: "Bambu Lab A1",       bedX: 256, bedY: 256, bedZ: 256, flowRate: 18, layerHeight: 0.2, multiplier: 1.15 },
   "bambu-a1mini": { name: "Bambu Lab A1 mini",  bedX: 180, bedY: 180, bedZ: 180, flowRate: 16, layerHeight: 0.2, multiplier: 1.15 },
   "bambu-h2d":    { name: "Bambu Lab H2D",      bedX: 350, bedY: 320, bedZ: 325, flowRate: 30, layerHeight: 0.2, multiplier: 0.95 },
+  // Prusa
   "prusa-mk4":    { name: "Prusa MK4",          bedX: 250, bedY: 210, bedZ: 220, flowRate: 14, layerHeight: 0.2, multiplier: 1.4 },
+  "prusa-mk4s":   { name: "Prusa MK4S",         bedX: 250, bedY: 210, bedZ: 220, flowRate: 16, layerHeight: 0.2, multiplier: 1.35 },
+  "prusa-mk3s":   { name: "Prusa MK3S+",        bedX: 250, bedY: 210, bedZ: 210, flowRate: 11, layerHeight: 0.2, multiplier: 1.5 },
+  "prusa-xl":     { name: "Prusa XL",           bedX: 360, bedY: 360, bedZ: 360, flowRate: 18, layerHeight: 0.2, multiplier: 1.25 },
   "prusa-mini":   { name: "Prusa Mini+",        bedX: 180, bedY: 180, bedZ: 180, flowRate: 10, layerHeight: 0.2, multiplier: 1.6 },
+  // Creality
   "ender-3":      { name: "Creality Ender 3",   bedX: 220, bedY: 220, bedZ: 250, flowRate: 7,  layerHeight: 0.2, multiplier: 2.2 },
   "ender-3v3":    { name: "Creality Ender 3 V3", bedX: 220, bedY: 220, bedZ: 250, flowRate: 18, layerHeight: 0.2, multiplier: 1.2 },
+  "creality-k1":  { name: "Creality K1",        bedX: 220, bedY: 220, bedZ: 250, flowRate: 25, layerHeight: 0.2, multiplier: 1.0 },
+  "creality-k1max": { name: "Creality K1 Max",  bedX: 300, bedY: 300, bedZ: 300, flowRate: 28, layerHeight: 0.2, multiplier: 0.95 },
+  // Voron / custom
   "voron-24":     { name: "Voron 2.4",          bedX: 300, bedY: 300, bedZ: 300, flowRate: 28, layerHeight: 0.2, multiplier: 0.95 },
-  "elegoo-mars":  { name: "Elegoo Mars (resin)", bedX: 143, bedY: 89, bedZ: 175, flowRate: 0, layerHeight: 0.05, multiplier: 0, resin: true },
+  "voron-trident": { name: "Voron Trident",     bedX: 300, bedY: 300, bedZ: 250, flowRate: 26, layerHeight: 0.2, multiplier: 0.98 },
+  // Anycubic
+  "anycubic-kobra2": { name: "Anycubic Kobra 2", bedX: 220, bedY: 220, bedZ: 250, flowRate: 14, layerHeight: 0.2, multiplier: 1.4 },
+  "anycubic-kobra3": { name: "Anycubic Kobra 3", bedX: 220, bedY: 220, bedZ: 250, flowRate: 20, layerHeight: 0.2, multiplier: 1.15 },
+  // FlashForge
+  "flashforge-5m":  { name: "FlashForge Adventurer 5M", bedX: 220, bedY: 220, bedZ: 220, flowRate: 22, layerHeight: 0.2, multiplier: 1.1 },
+  // Sovol
+  "sovol-sv06":   { name: "Sovol SV06",         bedX: 220, bedY: 220, bedZ: 250, flowRate: 12, layerHeight: 0.2, multiplier: 1.5 },
+  "sovol-sv07":   { name: "Sovol SV07",         bedX: 220, bedY: 220, bedZ: 250, flowRate: 20, layerHeight: 0.2, multiplier: 1.15 },
+  // Resin
+  "elegoo-mars":   { name: "Elegoo Mars 4 (resin)", bedX: 143, bedY: 89, bedZ: 175, flowRate: 0, layerHeight: 0.05, multiplier: 0, resin: true },
+  "elegoo-saturn": { name: "Elegoo Saturn 4 (resin)", bedX: 219, bedY: 123, bedZ: 250, flowRate: 0, layerHeight: 0.05, multiplier: 0, resin: true },
+  "anycubic-photon": { name: "Anycubic Photon Mono (resin)", bedX: 165, bedY: 72, bedZ: 165, flowRate: 0, layerHeight: 0.05, multiplier: 0, resin: true },
+  // Catch-alls
   "generic":      { name: "Generic FDM",        bedX: 220, bedY: 220, bedZ: 250, flowRate: 12, layerHeight: 0.2, multiplier: 1.4 },
+  "generic-fast": { name: "Generic Fast FDM (CoreXY)", bedX: 256, bedY: 256, bedZ: 256, flowRate: 22, layerHeight: 0.2, multiplier: 1.1 },
 };
+
+// Load custom printer if user added one
+function getCustomPrinter() {
+  try { return JSON.parse(localStorage.getItem("forge:custom-printer") || "null"); } catch { return null; }
+}
+function saveCustomPrinter(profile) {
+  localStorage.setItem("forge:custom-printer", JSON.stringify(profile));
+  PRINTER_PROFILES["custom"] = profile;
+}
+// Hydrate custom slot on boot
+(function loadCustomPrinterOnBoot() {
+  const cp = getCustomPrinter();
+  if (cp) PRINTER_PROFILES["custom"] = cp;
+})();
 const MATERIALS = {
   pla:  { name: "PLA",  density: 1.24, costPerKg: 22 },
   petg: { name: "PETG", density: 1.27, costPerKg: 25 },
@@ -1296,6 +1335,10 @@ function showPrinterPicker(el) {
             <div class="printer-card-meta">${p.bedX}×${p.bedY}×${p.bedZ}mm bed${p.resin ? " · resin" : ` · ~${p.flowRate} mm³/s`}</div>
           </button>
         `).join("")}
+        <button class="printer-card" data-printer="add-custom" style="border-style:dashed">
+          <div class="printer-card-name">+ Add a custom printer</div>
+          <div class="printer-card-meta">Don't see yours? Add it manually.</div>
+        </button>
         <button class="printer-card" data-printer="none">
           <div class="printer-card-name">I don't have one yet</div>
           <div class="printer-card-meta">Skip estimates for now</div>
@@ -1307,11 +1350,68 @@ function showPrinterPicker(el) {
   modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
   modal.querySelectorAll("[data-printer]").forEach(b => b.addEventListener("click", () => {
     const id = b.dataset.printer;
-    if (id === "none") { localStorage.removeItem(FORGE_PRINTER_KEY); }
-    else { setPrinterProfile(id); }
+    if (id === "none") { localStorage.removeItem(FORGE_PRINTER_KEY); modal.remove(); if (currentRoute === "forge") renderForge(el); return; }
+    if (id === "add-custom") { modal.remove(); showCustomPrinterForm(el); return; }
+    setPrinterProfile(id);
     modal.remove();
     if (currentRoute === "forge") renderForge(el);
   }));
+}
+
+function showCustomPrinterForm(el) {
+  const existing = getCustomPrinter();
+  const modal = document.createElement("div");
+  modal.className = "forge-modal";
+  modal.innerHTML = `
+    <div class="forge-modal-card" style="max-width:480px">
+      <div class="forge-modal-title">Add your custom printer</div>
+      <div class="forge-modal-sub">Fill in what you know — defaults are reasonable for any modern FDM. Find flow rate in your slicer's max volumetric speed.</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px">
+        <label style="font-size:12px;color:var(--muted)">Printer name<br>
+          <input type="text" id="cp-name" value="${escapeHtml(existing?.name || "")}" placeholder="e.g. My Custom Voron" style="margin-top:4px;width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);color:var(--text);font-size:13px" />
+        </label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <label style="font-size:12px;color:var(--muted)">Bed X mm<br>
+            <input type="number" id="cp-x" value="${existing?.bedX || 256}" min="50" max="500" style="margin-top:4px;width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);color:var(--text);font-size:13px" />
+          </label>
+          <label style="font-size:12px;color:var(--muted)">Bed Y mm<br>
+            <input type="number" id="cp-y" value="${existing?.bedY || 256}" min="50" max="500" style="margin-top:4px;width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);color:var(--text);font-size:13px" />
+          </label>
+          <label style="font-size:12px;color:var(--muted)">Bed Z mm<br>
+            <input type="number" id="cp-z" value="${existing?.bedZ || 256}" min="50" max="500" style="margin-top:4px;width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);color:var(--text);font-size:13px" />
+          </label>
+        </div>
+        <label style="font-size:12px;color:var(--muted)">Flow rate mm³/s (look in slicer)<br>
+          <input type="number" id="cp-flow" value="${existing?.flowRate || 18}" min="1" max="60" step="0.5" style="margin-top:4px;width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);color:var(--text);font-size:13px" />
+          <span style="font-size:10px;color:var(--muted-2)">Bambu = ~20-30, Prusa MK4 = ~14, Ender 3 = ~7. Guess 15 if unsure.</span>
+        </label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--text);cursor:pointer">
+          <input type="checkbox" id="cp-resin" ${existing?.resin ? "checked" : ""} /> This is a resin printer (estimates by layer count)
+        </label>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+          <button class="btn btn-secondary" id="cp-cancel" style="width:auto;padding:9px 18px;font-size:13px">Cancel</button>
+          <button class="btn btn-primary" id="cp-save" style="width:auto;padding:9px 18px;font-size:13px">Save & use it</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
+  document.getElementById("cp-cancel").addEventListener("click", () => modal.remove());
+  document.getElementById("cp-save").addEventListener("click", () => {
+    const name = document.getElementById("cp-name").value.trim() || "My Custom Printer";
+    const bedX = parseInt(document.getElementById("cp-x").value) || 256;
+    const bedY = parseInt(document.getElementById("cp-y").value) || 256;
+    const bedZ = parseInt(document.getElementById("cp-z").value) || 256;
+    const flowRate = parseFloat(document.getElementById("cp-flow").value) || 15;
+    const resin = document.getElementById("cp-resin").checked;
+    const profile = { name, bedX, bedY, bedZ, flowRate, layerHeight: resin ? 0.05 : 0.2, multiplier: resin ? 0 : 1.2, resin };
+    saveCustomPrinter(profile);
+    setPrinterProfile("custom");
+    modal.remove();
+    showToast(`Saved ${name} as your printer`, 3000, null, "success");
+    if (currentRoute === "forge") renderForge(el);
+  });
 }
 
 // ============================================================
