@@ -200,6 +200,27 @@
   .printer-card.active, .material-card.active { border-color: var(--primary); background: rgba(124,92,255,0.15); }
   .printer-card-name, .material-card-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
   .printer-card-meta, .material-card-meta { font-size: 11px; color: var(--muted); }
+  .settings-section { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-soft); }
+  .settings-section:first-of-type { border-top: none; padding-top: 0; }
+  .settings-section-title { font-size: 11px; color: var(--muted-2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600; }
+  .settings-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .settings-row .btn { width: auto; padding: 7px 14px; font-size: 12px; white-space: nowrap; }
+  /* Onboarding tour card */
+  .tour-card { max-width: 460px; }
+  .tour-art { aspect-ratio: 16/9; background: linear-gradient(135deg, rgba(124,92,255,0.2), rgba(92,255,208,0.15)); border-radius: 14px; margin-bottom: 16px; display: grid; place-items: center; font-size: 64px; }
+  .tour-dots { display: flex; gap: 6px; justify-content: center; margin-top: 14px; }
+  .tour-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted-2); }
+  .tour-dot.active { background: var(--primary); width: 18px; border-radius: 999px; transition: all 0.2s; }
+  .tour-actions { display: flex; justify-content: space-between; margin-top: 18px; gap: 10px; }
+  .tour-actions .btn { width: auto; padding: 9px 18px; font-size: 13px; }
+  /* My Models search */
+  .models-search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+  .models-search { flex: 1; padding: 9px 14px 9px 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-2); color: var(--text); font-size: 13px; font-family: inherit; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a7a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>"); background-repeat: no-repeat; background-position: 12px center; background-size: 16px; }
+  .models-search:focus { outline: none; border-color: var(--primary); }
+  /* Image preview thumbnail in prompt area */
+  .ref-image-preview { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 4px 10px 4px 4px; font-size: 12px; color: var(--muted); margin-right: 8px; }
+  .ref-image-preview img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; }
+  .ref-image-remove { background: none; border: none; color: var(--red, #ff5c7a); cursor: pointer; font-size: 14px; padding: 0 4px; }
   /* MOBILE RESPONSIVE — collapse sidebar to bottom-tab nav on narrow screens */
   @media (max-width: 780px) {
     .shell { flex-direction: column-reverse; }
@@ -238,6 +259,54 @@
     .nav-item { min-width: 56px; font-size: 9px; }
     .nav-item svg { width: 20px; height: 20px; }
   }
+  /* Light theme overrides */
+  [data-theme="light"] {
+    --bg: #f6f6f9;
+    --bg-2: #ffffff;
+    --card: #ffffff;
+    --text: #1a1a24;
+    --muted: #6b7280;
+    --muted-2: #9ca3af;
+    --border: #e5e7eb;
+    --border-soft: #f3f4f6;
+  }
+  [data-theme="light"] body { background: var(--bg); color: var(--text); }
+  [data-theme="light"] .doom-img { background: #f3f4f6; }
+  [data-theme="light"] .anim-caption { background: rgba(255,255,255,0.92); color: #1a1a24; border: 1px solid var(--border); }
+  /* Focus rings — accessibility */
+  button:focus-visible, input:focus-visible, textarea:focus-visible, [role="button"]:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .btn:focus-visible { outline-offset: 3px; }
+  /* Danger variant for confirms */
+  .btn-primary.danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  /* Recent prompts dropdown */
+  .recent-prompts { position: absolute; top: 100%; left: 0; right: 0; background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin-top: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-height: 280px; overflow-y: auto; z-index: 20; }
+  .recent-prompt-item { display: block; width: 100%; text-align: left; padding: 10px 14px; background: transparent; border: none; color: var(--text); font-size: 12px; cursor: pointer; font-family: inherit; line-height: 1.4; border-bottom: 1px solid var(--border-soft); }
+  .recent-prompt-item:hover { background: var(--bg-2); }
+  .recent-prompt-item:last-child { border-bottom: none; }
+  .recent-prompts-header { padding: 8px 14px; font-size: 10px; color: var(--muted-2); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border-soft); }
+  .prompt-shell { position: relative; }
+  /* Help shortcut hint pill */
+  .kbd { display: inline-block; padding: 1px 6px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 4px; font-family: ui-monospace, monospace; font-size: 10px; color: var(--muted); }
+  /* Per-model notes textarea */
+  .model-note-input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-2); color: var(--text); font-size: 13px; font-family: inherit; resize: vertical; min-height: 60px; }
+  /* My Models bulk-select chip */
+  .bulk-toolbar { display: flex; gap: 8px; align-items: center; padding: 8px 0; }
+  .bulk-toolbar .btn { width: auto; padding: 6px 12px; font-size: 12px; }
+  /* Doom Printing category filter */
+  .doom-filter-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; padding: 8px 0 16px; }
+  .doom-filter-chip { background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; font-size: 11px; color: var(--muted); cursor: pointer; font-family: inherit; }
+  .doom-filter-chip.active { background: rgba(124,92,255,0.15); color: var(--primary-2); border-color: var(--primary); }
+  /* Assistant quick-action chips */
+  .qa-chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 0; }
+  .qa-chip { background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font-size: 11px; color: var(--text); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+  .qa-chip:hover { border-color: var(--primary); background: rgba(124,92,255,0.08); }
+  /* Image preview thumbnail in prompt area (already declared above, ensuring shows) */
+  .ref-image-preview { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 4px 10px 4px 4px; font-size: 12px; color: var(--text); }
+  .ref-image-preview img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; }
+  .ref-image-remove { background: none; border: none; color: #ff5c7a; cursor: pointer; font-size: 16px; padding: 0 4px; }
   /* Doom Printing swipe deck */
   .doom-deck { max-width: 420px; margin: 24px auto; position: relative; }
   .doom-card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; overflow: hidden; box-shadow: 0 14px 40px rgba(0,0,0,0.5); }
@@ -296,7 +365,8 @@
     "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
     "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
     "three-mesh-bvh": "https://unpkg.com/three-mesh-bvh@0.7.0/build/index.module.js",
-    "three-bvh-csg": "https://unpkg.com/three-bvh-csg@0.0.16/build/index.module.js"
+    "three-bvh-csg": "https://unpkg.com/three-bvh-csg@0.0.16/build/index.module.js",
+    "fflate": "https://unpkg.com/fflate@0.8.2/esm/browser.js"
   }
 }
 </script>
@@ -307,6 +377,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { STLExporter } from 'three/addons/exporters/STLExporter.js';
 import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
 import { Brush, Evaluator, SUBTRACTION, ADDITION } from 'three-bvh-csg';
+import { zipSync, strToU8 } from 'fflate';
 
 // ============================================================
 // Config — shared with Nexus + Hub
@@ -330,6 +401,8 @@ const ICONS = {
   save:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
   image:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
   flame:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
+  settings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  search:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
 };
 const brandSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>`;
 
@@ -708,18 +781,82 @@ function exportOBJ() {
   const obj = exp.parse(viewerGroup);
   downloadBlob(modelFilename("obj"), obj, "text/plain");
 }
-// 3MF — Bambu Studio's preferred format. We emit a minimal valid 3MF zip
-// containing the model as STL-equivalent triangles. Bambu Studio accepts STL
-// inside a 3MF wrapper, and most slicers handle this fine.
+// Real 3MF export — produces a properly-zipped .3mf file with the 3D Manufacturing
+// Format manifest. Bambu Studio, OrcaSlicer, Cura, PrusaSlicer all natively
+// open .3mf files (it's the modern preferred format vs STL).
 function export3MF() {
   if (!viewerGroup) return alert("Generate something first");
-  // Minimal valid approach: ship as STL with .3mf extension — slicers usually
-  // detect by content. For true 3MF we'd need a zip with model XML. Honest
-  // fallback: most users want STL anyway, so this saves them a click.
-  const exp = new STLExporter();
-  const stl = exp.parse(viewerGroup, { binary: false });
-  downloadBlob(modelFilename("stl"), stl, "model/stl");
-  showToast("Saved as STL (compatible with Bambu Studio, OrcaSlicer, Cura — true 3MF coming soon)");
+  try {
+    // Collect every triangle from the merged geometry
+    const vertices = []; // flat array of {x,y,z}
+    const triangles = []; // [v1Idx, v2Idx, v3Idx]
+    const vertexMap = new Map(); // dedupe shared vertices by quantized key
+    function addVertex(x, y, z) {
+      const key = `${x.toFixed(4)},${y.toFixed(4)},${z.toFixed(4)}`;
+      if (vertexMap.has(key)) return vertexMap.get(key);
+      const idx = vertices.length;
+      vertices.push({ x, y, z });
+      vertexMap.set(key, idx);
+      return idx;
+    }
+    viewerGroup.traverse((obj) => {
+      if (!obj.isMesh) return;
+      const geom = obj.geometry;
+      const pos = geom.attributes.position;
+      const idx = geom.index;
+      obj.updateMatrixWorld(true);
+      const m = obj.matrixWorld;
+      const v = new THREE.Vector3();
+      const triCount = idx ? idx.count / 3 : pos.count / 3;
+      for (let t = 0; t < triCount; t++) {
+        const ids = idx ? [idx.getX(3*t), idx.getX(3*t+1), idx.getX(3*t+2)] : [3*t, 3*t+1, 3*t+2];
+        const indices = ids.map(i => {
+          v.set(pos.getX(i), pos.getY(i), pos.getZ(i));
+          v.applyMatrix4(m);
+          return addVertex(v.x, v.y, v.z);
+        });
+        triangles.push(indices);
+      }
+    });
+
+    // Build 3D/3dmodel.model XML
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
+<resources>
+<object id="1" type="model">
+<mesh>
+<vertices>
+`;
+    for (const v of vertices) xml += `<vertex x="${v.x.toFixed(4)}" y="${v.y.toFixed(4)}" z="${v.z.toFixed(4)}"/>\n`;
+    xml += `</vertices>\n<triangles>\n`;
+    for (const t of triangles) xml += `<triangle v1="${t[0]}" v2="${t[1]}" v3="${t[2]}"/>\n`;
+    xml += `</triangles>\n</mesh>\n</object>\n</resources>\n<build>\n<item objectid="1"/>\n</build>\n</model>\n`;
+
+    const contentTypes = `<?xml version="1.0" encoding="UTF-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>
+</Types>
+`;
+    const rels = `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>
+</Relationships>
+`;
+
+    // Build the zip in-memory (fflate is synchronous + fast)
+    const zipped = zipSync({
+      "[Content_Types].xml": strToU8(contentTypes),
+      "_rels/.rels": strToU8(rels),
+      "3D/3dmodel.model": strToU8(xml),
+    });
+    downloadBlob(modelFilename("3mf"), new Blob([zipped], { type: "model/3mf" }));
+    showToast("Saved as real .3mf — Bambu Studio's preferred format.", 4000);
+  } catch (err) {
+    console.error("3MF export failed:", err);
+    showToast("3MF export failed: " + (err.message || "unknown") + ". Falling back to STL.", 5000);
+    exportSTL();
+  }
 }
 
 // ============================================================
@@ -855,21 +992,127 @@ async function tryDesktopHelper(app) {
   });
 }
 
-// Tiny toast — used for "saved", export hints, etc.
-function showToast(msg, ms = 3000, helpUrl = null) {
+// Toast with optional variant (success | warn | error | info default)
+function showToast(msg, ms = 3000, helpUrl = null, variant = "info") {
   let host = document.getElementById("forge-toast");
   if (!host) {
     host = document.createElement("div");
     host.id = "forge-toast";
-    host.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 18px;border-radius:12px;font-size:13px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.4);max-width:520px;text-align:center;line-height:1.4;display:none";
+    host.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 18px;border-radius:12px;font-size:13px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.4);max-width:520px;text-align:center;line-height:1.4;display:none;border:1px solid";
     document.body.appendChild(host);
   }
+  const variants = {
+    info:    { bg: "var(--card)", border: "var(--border)", color: "var(--text)" },
+    success: { bg: "rgba(34,197,94,0.12)", border: "rgba(34,197,94,0.45)", color: "#86efac" },
+    warn:    { bg: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.45)", color: "#fcd34d" },
+    error:   { bg: "rgba(239,68,68,0.12)", border: "rgba(239,68,68,0.45)", color: "#fca5a5" },
+  };
+  const v = variants[variant] || variants.info;
+  host.style.background = v.bg;
+  host.style.borderColor = v.border;
+  host.style.color = v.color;
   host.innerHTML = helpUrl
-    ? `${escapeHtml(msg)}<br><a href="${helpUrl}" target="_blank" rel="noopener" style="color:var(--primary);text-decoration:underline;font-size:12px">Don't have it? Get it here ↗</a>`
+    ? `${escapeHtml(msg)}<br><a href="${helpUrl}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;font-size:12px">Don't have it? Get it here ↗</a>`
     : escapeHtml(msg);
   host.style.display = "block";
   clearTimeout(showToast._t);
   showToast._t = setTimeout(() => { host.style.display = "none"; }, ms);
+}
+
+// Custom branded confirm dialog — replaces window.confirm()
+function forgeConfirm(message, opts = {}) {
+  return new Promise((resolve) => {
+    const modal = document.createElement("div");
+    modal.className = "forge-modal";
+    modal.innerHTML = `
+      <div class="forge-modal-card" style="max-width:420px">
+        <div class="forge-modal-title">${escapeHtml(opts.title || "Confirm")}</div>
+        <div style="font-size:14px;color:var(--text);line-height:1.55;margin-top:8px;margin-bottom:18px">${escapeHtml(message)}</div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-secondary" id="cf-cancel" style="width:auto;padding:9px 18px;font-size:13px">${escapeHtml(opts.cancelLabel || "Cancel")}</button>
+          <button class="btn btn-primary ${opts.danger ? "danger" : ""}" id="cf-ok" style="width:auto;padding:9px 18px;font-size:13px">${escapeHtml(opts.okLabel || "OK")}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    const cleanup = (v) => { modal.remove(); document.removeEventListener("keydown", onKey); resolve(v); };
+    const onKey = (e) => {
+      if (e.key === "Escape") cleanup(false);
+      if (e.key === "Enter") cleanup(true);
+    };
+    document.addEventListener("keydown", onKey);
+    modal.addEventListener("click", (e) => { if (e.target === modal) cleanup(false); });
+    document.getElementById("cf-cancel").addEventListener("click", () => cleanup(false));
+    document.getElementById("cf-ok").addEventListener("click", () => cleanup(true));
+    setTimeout(() => document.getElementById("cf-ok")?.focus(), 50);
+  });
+}
+
+// Centralized fetch wrapper with friendly error messages + retry
+async function fetchAPI(url, options = {}, opts = {}) {
+  const maxRetries = opts.retries ?? 1;
+  let lastErr;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const r = await fetch(url, options);
+      const ct = r.headers.get("content-type") || "";
+      const j = ct.includes("application/json") ? await r.json() : { ok: r.ok, text: await r.text() };
+      if (!r.ok || j.ok === false) {
+        throw new Error(j.error || `${r.status} ${r.statusText}`);
+      }
+      return j;
+    } catch (e) {
+      lastErr = e;
+      if (attempt < maxRetries) await new Promise(r => setTimeout(r, 700 * (attempt + 1)));
+    }
+  }
+  // Friendly error mapping
+  const msg = lastErr?.message || "Unknown error";
+  if (/Failed to fetch|NetworkError|ERR_NETWORK/i.test(msg)) {
+    throw new Error("Can't reach Knox Forge servers. Check your internet and try again.");
+  }
+  if (/429/.test(msg)) {
+    throw new Error("Whoa — too many requests in a short window. Wait a few seconds.");
+  }
+  if (/AI not configured/.test(msg)) {
+    throw new Error("AI is offline right now. Try again in a minute.");
+  }
+  throw lastErr;
+}
+
+// Track recent prompts so users can quickly re-use them
+const FORGE_RECENT_PROMPTS_KEY = "forge:recent-prompts";
+function pushRecentPrompt(prompt) {
+  if (!prompt || prompt.length < 8) return;
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem(FORGE_RECENT_PROMPTS_KEY) || "[]"); } catch {}
+  // Move to top, dedupe
+  list = list.filter(p => p !== prompt);
+  list.unshift(prompt);
+  localStorage.setItem(FORGE_RECENT_PROMPTS_KEY, JSON.stringify(list.slice(0, 12)));
+}
+function getRecentPrompts() {
+  try { return JSON.parse(localStorage.getItem(FORGE_RECENT_PROMPTS_KEY) || "[]"); } catch { return []; }
+}
+
+// Draft auto-save — preserve in-progress prompt across reloads/route changes
+const FORGE_DRAFT_KEY = "forge:draft-prompt";
+function saveDraft(text) {
+  if (text && text.trim().length > 4) localStorage.setItem(FORGE_DRAFT_KEY, text);
+  else localStorage.removeItem(FORGE_DRAFT_KEY);
+}
+function getDraft() { return localStorage.getItem(FORGE_DRAFT_KEY) || ""; }
+function clearDraft() { localStorage.removeItem(FORGE_DRAFT_KEY); }
+
+// Theme — light / dark
+const FORGE_THEME_KEY = "forge:theme";
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme || "dark");
+}
+function getTheme() { return localStorage.getItem(FORGE_THEME_KEY) || "dark"; }
+function setTheme(t) {
+  localStorage.setItem(FORGE_THEME_KEY, t);
+  applyTheme(t);
 }
 
 // ============================================================
@@ -1071,6 +1314,151 @@ function showPrinterPicker(el) {
   }));
 }
 
+// ============================================================
+// Settings modal — central place for printer/material/account/install
+// ============================================================
+function showSettings(el) {
+  const session = getSession();
+  const printer = getPrinterProfile();
+  const material = getMaterial();
+  const modal = document.createElement("div");
+  modal.className = "forge-modal";
+  modal.innerHTML = `
+    <div class="forge-modal-card" style="max-width:600px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="forge-modal-title">Settings</div>
+        <button class="link-btn" id="settings-close" style="font-size:18px;text-decoration:none">✕</button>
+      </div>
+      <div class="forge-modal-sub">Everything in one place.</div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Account</div>
+        <div class="settings-row">
+          <div>
+            <div style="font-weight:600;font-size:13px">${escapeHtml(session?.name || session?.email || "Signed in")}</div>
+            <div style="font-size:11px;color:var(--muted)">${session?.id ? "Cross-device sync enabled" : "Not signed in"}</div>
+          </div>
+          <button class="btn btn-secondary" id="settings-signout">Sign out</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">3D printer</div>
+        <div class="settings-row">
+          <div>
+            <div style="font-weight:600;font-size:13px">${printer ? escapeHtml(printer.name) : "Not chosen yet"}</div>
+            <div style="font-size:11px;color:var(--muted)">${printer ? `${printer.bedX}×${printer.bedY}×${printer.bedZ}mm bed` : "Pick yours for print time estimates"}</div>
+          </div>
+          <button class="btn btn-secondary" id="settings-printer">Change</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Default material</div>
+        <div class="settings-row">
+          <div>
+            <div style="font-weight:600;font-size:13px">${escapeHtml(material.name)}</div>
+            <div style="font-size:11px;color:var(--muted)">${material.density} g/cm³ · ~$${material.costPerKg}/kg</div>
+          </div>
+          <button class="btn btn-secondary" id="settings-material">Change</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Install Knox Forge</div>
+        <div class="settings-row">
+          <div>
+            <div style="font-weight:600;font-size:13px">As a desktop / phone app</div>
+            <div style="font-size:11px;color:var(--muted)">PWA install — adds an icon, launches without a browser tab.</div>
+          </div>
+          <button class="btn btn-secondary" id="settings-install-pwa">Install</button>
+        </div>
+        <div class="settings-row" style="margin-top:8px">
+          <div>
+            <div style="font-weight:600;font-size:13px">Desktop Helper (Windows)</div>
+            <div style="font-size:11px;color:var(--muted)">True 1-click open in Bambu Studio / OrcaSlicer / Cura. Optional.</div>
+          </div>
+          <button class="btn btn-secondary" id="settings-helper-info">How to install</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Appearance</div>
+        <div class="settings-row">
+          <div>
+            <div style="font-weight:600;font-size:13px">Theme</div>
+            <div style="font-size:11px;color:var(--muted)">Dark or light. Saved across sessions.</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-secondary ${getTheme() === "dark" ? "active-theme" : ""}" id="settings-theme-dark" style="width:auto;padding:7px 14px;font-size:12px">🌙 Dark</button>
+            <button class="btn btn-secondary ${getTheme() === "light" ? "active-theme" : ""}" id="settings-theme-light" style="width:auto;padding:7px 14px;font-size:12px">☀️ Light</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Keyboard shortcuts</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.8">
+          <span class="kbd">/</span> focus prompt or search · <span class="kbd">Ctrl+Enter</span> Generate · <span class="kbd">Ctrl+S</span> Save model · <span class="kbd">Esc</span> close dialog
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">About</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6">
+          Knox Forge — AI 3D modeling for the rest of us.<br>
+          Type what you want. We model it. You print it.<br>
+          Part of the Knox Apps suite.
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
+  document.getElementById("settings-close").addEventListener("click", () => modal.remove());
+
+  document.getElementById("settings-signout").addEventListener("click", () => {
+    if (!confirm("Sign out? Your cloud models stay safe — just sign in again to see them.")) return;
+    localStorage.removeItem(FORGE_SESSION_KEY);
+    modal.remove();
+    render();
+  });
+  document.getElementById("settings-printer").addEventListener("click", () => { modal.remove(); showPrinterPicker(el); });
+  document.getElementById("settings-material").addEventListener("click", () => { modal.remove(); showMaterialPicker(el); });
+  document.getElementById("settings-install-pwa").addEventListener("click", () => {
+    triggerForgeInstall();
+  });
+  document.getElementById("settings-helper-info").addEventListener("click", () => {
+    showHelperInstallInfo();
+  });
+  document.getElementById("settings-theme-dark")?.addEventListener("click", () => { setTheme("dark"); modal.remove(); showSettings(el); });
+  document.getElementById("settings-theme-light")?.addEventListener("click", () => { setTheme("light"); modal.remove(); showSettings(el); });
+}
+
+function showHelperInstallInfo() {
+  const modal = document.createElement("div");
+  modal.className = "forge-modal";
+  modal.innerHTML = `
+    <div class="forge-modal-card" style="max-width:540px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="forge-modal-title">Desktop Helper (Windows)</div>
+        <button class="link-btn helper-info-close" style="font-size:18px;text-decoration:none">✕</button>
+      </div>
+      <div class="forge-modal-sub">Optional. Enables true 1-click "Open in Bambu Studio" from the web app.</div>
+      <ol style="line-height:1.7;font-size:13px;color:var(--text);padding-left:20px">
+        <li>Open your Knox-Forge-Helper folder on your computer.</li>
+        <li>Make sure Node.js is installed (<a href="https://nodejs.org" target="_blank" style="color:var(--primary-2)">nodejs.org</a>).</li>
+        <li>Double-click <code style="background:var(--bg-2);padding:1px 6px;border-radius:4px">INSTALL-HELPER.bat</code> — it builds + registers the protocol in ~2 min.</li>
+        <li>Come back to Knox Forge. Now clicking "Bambu Studio" auto-opens the slicer with your model loaded.</li>
+      </ol>
+      <div style="font-size:11px;color:var(--muted);margin-top:14px">If the helper isn't installed, Knox Forge falls back to download mode — you still get the STL, just need to drag it into Bambu yourself.</div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
+  modal.querySelector(".helper-info-close").addEventListener("click", () => modal.remove());
+}
+
 function showMaterialPicker(el) {
   const currentId = localStorage.getItem(FORGE_MATERIAL_KEY) || "pla";
   const modal = document.createElement("div");
@@ -1232,6 +1620,11 @@ function render() {
   if (session?.id && !window._forgeCloudLoaded) {
     window._forgeCloudLoaded = true;
     loadModelsFromCloud().catch(() => {});
+    maybeShowOnboarding();
+  }
+  // Clean up any running animation when navigating away from Forge
+  if (currentRoute !== "forge") {
+    try { clearAnimation(); } catch {}
   }
   if (!session) return renderAuth();
   return renderShell();
@@ -1312,6 +1705,7 @@ function renderShell() {
     { id: "discover",  label: "Doom Printing",  icon: ICONS.flame },
     { id: "models",    label: "My Models", icon: ICONS.models },
     { id: "assistant", label: "Assistant", icon: ICONS.assistant },
+    { id: "settings",  label: "Settings",  icon: ICONS.settings || ICONS.scan },
   ];
   document.getElementById("app").innerHTML = `
     <div class="shell">
@@ -1330,7 +1724,14 @@ function renderShell() {
       <main class="main" id="page"></main>
     </div>
   `;
-  document.querySelectorAll("[data-route]").forEach(b => b.addEventListener("click", () => { currentRoute = b.dataset.route; renderShell(); }));
+  document.querySelectorAll("[data-route]").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.route === "settings") {
+      showSettings(document.querySelector(".main"));
+      return;
+    }
+    currentRoute = b.dataset.route;
+    renderShell();
+  }));
   document.getElementById("signout").addEventListener("click", () => { if (confirm("Sign out?")) { clearSession(); render(); } });
   renderPage();
 }
@@ -1468,9 +1869,17 @@ function renderForge(el) {
     if (e.key === "Enter") { e.preventDefault(); runRefine(el); }
   });
 
+  // Draft auto-save: restore on render + save on type
+  const promptEl = document.getElementById("prompt");
+  if (promptEl && !promptEl.value && !lastSpec) {
+    const draft = getDraft();
+    if (draft) promptEl.value = draft;
+  }
+  promptEl?.addEventListener("input", (e) => saveDraft(e.target.value));
+
   document.getElementById("gen-btn").addEventListener("click", async () => {
     const prompt = document.getElementById("prompt").value.trim();
-    if (!prompt) return alert("Type a prompt first");
+    if (!prompt) return showToast("Type a prompt first", 3000, null, "warn");
     const anchorsText = document.getElementById("anchor-constraints").value.trim();
     const btn = document.getElementById("gen-btn");
     btn.disabled = true;
@@ -1478,14 +1887,17 @@ function renderForge(el) {
     const progress = startProgressTicker("Generate");
     try {
       lastPrompt = prompt;
+      pushRecentPrompt(prompt);
+      clearDraft();
       const fullPrompt = anchorsText ? `${prompt}\n\nSize anchors (honor exactly, scale rest proportionally): ${anchorsText}` : prompt;
       lastSpec = await generateModelFromPrompt(fullPrompt, Array.from(activePresets), lastImage);
       setViewerModel(lastSpec);
       progress.done();
       renderForge(el);
+      showToast(`Generated "${lastSpec.name || "Untitled"}"`, 3000, null, "success");
     } catch (ex) {
       progress.fail();
-      alert(ex.message || "Generation failed");
+      showToast(ex.message || "Generation failed", 5000, null, "error");
       btn.disabled = false;
       btn.innerHTML = `${ICONS.sparkles}<span style="margin-left:6px">Generate</span>`;
     }
@@ -2068,14 +2480,27 @@ function renderDoomCard(host) {
 function renderDiscover(el) { return renderDoomPrinting(el); }
 
 // ───── My Models ─────
+let modelsFilter = "";
 function renderModels(el) {
-  const models = getSavedModels();
+  const allModels = getSavedModels();
+  const filter = modelsFilter.trim().toLowerCase();
+  const models = filter
+    ? allModels.filter(m => (m.name + " " + (m.prompt || "")).toLowerCase().includes(filter))
+    : allModels;
   el.innerHTML = `
     <header class="page-header">
       <div class="page-title">My Models</div>
-      <div class="page-sub">Everything you've generated and saved. ${models.length} model${models.length === 1 ? "" : "s"}.</div>
+      <div class="page-sub">Everything you've generated and saved. ${allModels.length} model${allModels.length === 1 ? "" : "s"}${filter ? ` · ${models.length} match${models.length === 1 ? "" : "es"}` : ""}.</div>
     </header>
-    ${models.length === 0 ? `
+    ${allModels.length > 0 ? `
+      <div class="models-search-row">
+        <input type="text" class="models-search" id="models-search-input" placeholder="Search by name or prompt…" value="${escapeHtml(modelsFilter)}" />
+        ${filter ? `<button class="btn btn-secondary" id="models-clear-search" style="width:auto;padding:8px 14px;font-size:12px">Clear</button>` : ""}
+      </div>
+    ` : ""}
+    ${models.length === 0 && filter ? `
+      <div class="empty"><div class="empty-icon">${ICONS.search}</div><h2>No matches</h2><p>Nothing matches "${escapeHtml(modelsFilter)}". Try a different word.</p></div>
+    ` : allModels.length === 0 ? `
       <div class="empty">
         <div class="empty-icon">${ICONS.models}</div>
         <h2>Nothing saved yet</h2>
@@ -2103,6 +2528,25 @@ function renderModels(el) {
   `;
   document.getElementById("models-go-forge")?.addEventListener("click", () => {
     currentRoute = "forge"; renderShell();
+  });
+  // Search input — debounced re-render
+  const searchInput = document.getElementById("models-search-input");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      modelsFilter = e.target.value;
+      // Debounce: only re-render on next frame
+      clearTimeout(searchInput._t);
+      searchInput._t = setTimeout(() => {
+        renderModels(el);
+        // Restore focus + caret
+        const newInput = document.getElementById("models-search-input");
+        if (newInput) { newInput.focus(); newInput.setSelectionRange(modelsFilter.length, modelsFilter.length); }
+      }, 200);
+    });
+  }
+  document.getElementById("models-clear-search")?.addEventListener("click", () => {
+    modelsFilter = "";
+    renderModels(el);
   });
   document.querySelectorAll("[data-load]").forEach(b => b.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -2178,7 +2622,96 @@ function renderAssistant(el) {
 // ============================================================
 // Boot
 // ============================================================
+applyTheme(getTheme());
+// Global keyboard shortcuts
+document.addEventListener("keydown", (e) => {
+  // Esc closes any open modal
+  if (e.key === "Escape") {
+    const modals = document.querySelectorAll(".forge-modal");
+    if (modals.length > 0) { modals[modals.length - 1].remove(); return; }
+  }
+  // "/" focuses the prompt textarea or search
+  if (e.key === "/" && !["INPUT", "TEXTAREA"].includes(e.target.tagName)) {
+    const prompt = document.getElementById("prompt") || document.getElementById("models-search-input");
+    if (prompt) { e.preventDefault(); prompt.focus(); }
+  }
+  // Cmd/Ctrl + S saves the current model
+  if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+    if (lastSpec && currentRoute === "forge") {
+      e.preventDefault();
+      saveModel(lastSpec, lastPrompt);
+      showToast("Saved to My Models", 2000, null, "success");
+    }
+  }
+  // Cmd/Ctrl + Enter on prompt textarea fires Generate
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    const genBtn = document.getElementById("gen-btn");
+    if (genBtn && !genBtn.disabled) { e.preventDefault(); genBtn.click(); }
+  }
+});
+
 render();
+
+// ============================================================
+// First-launch onboarding tour
+// ============================================================
+const FORGE_TOUR_SEEN_KEY = "forge:tour-seen";
+function maybeShowOnboarding() {
+  if (localStorage.getItem(FORGE_TOUR_SEEN_KEY) === "1") return;
+  // Only show after auth + at least one render is done
+  if (!getSession()) return;
+  setTimeout(() => showOnboardingTour(), 600);
+}
+function showOnboardingTour() {
+  const steps = [
+    {
+      art: "✨",
+      title: "Welcome to Knox Forge",
+      body: "Knox Forge turns plain English into 3D-printable models. Type what you want, the AI figures out the geometry, sizes it to real-world dimensions, and gives you an STL ready to print.",
+    },
+    {
+      art: "📷",
+      title: "Or scan something real",
+      body: "Point your camera at an object. Knox Forge identifies it and builds a model sized to the actual thing. Single photo, multi-angle batch, or video pan — your call.",
+    },
+    {
+      art: "🔄",
+      title: "Refine instead of restarting",
+      body: 'After it generates, type follow-ups like "make the walls thicker" or "add a divider." The AI tweaks the model — no more starting over when 90% is right.',
+    },
+    {
+      art: "🛠️",
+      title: "Send to your slicer",
+      body: "Pick your printer in Settings for real print-time estimates. Click Bambu Studio / Cura / OrcaSlicer in the export row — the STL drops into your slicer ready to print.",
+    },
+  ];
+  let i = 0;
+  const modal = document.createElement("div");
+  modal.className = "forge-modal";
+  function renderStep() {
+    const s = steps[i];
+    modal.innerHTML = `
+      <div class="forge-modal-card tour-card">
+        <div class="tour-art">${s.art}</div>
+        <div class="forge-modal-title">${escapeHtml(s.title)}</div>
+        <div style="font-size:14px;color:var(--text);line-height:1.55;margin-top:8px">${escapeHtml(s.body)}</div>
+        <div class="tour-dots">${steps.map((_, n) => `<div class="tour-dot ${n === i ? "active" : ""}"></div>`).join("")}</div>
+        <div class="tour-actions">
+          <button class="btn btn-secondary" id="tour-skip">${i === steps.length - 1 ? "Got it" : "Skip tour"}</button>
+          <button class="btn btn-primary" id="tour-next">${i === steps.length - 1 ? "Start building" : "Next →"}</button>
+        </div>
+      </div>
+    `;
+    document.getElementById("tour-skip").addEventListener("click", () => { localStorage.setItem(FORGE_TOUR_SEEN_KEY, "1"); modal.remove(); });
+    document.getElementById("tour-next").addEventListener("click", () => {
+      i++;
+      if (i >= steps.length) { localStorage.setItem(FORGE_TOUR_SEEN_KEY, "1"); modal.remove(); return; }
+      renderStep();
+    });
+  }
+  renderStep();
+  document.body.appendChild(modal);
+}
 
 // PWA: register service worker so Chrome offers "Install Knox Forge"
 // in the address bar omnibox. Required for the Web Share API +
