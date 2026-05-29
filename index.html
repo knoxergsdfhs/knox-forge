@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0a0f">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
-<title>Knox Forge — 3D modeling with AI</title>
+<title>Forge — 3D modeling with AI</title>
 <style>
   :root {
     --bg: #0a0a0f;
@@ -544,13 +544,24 @@ async function runRefine(el) {
   }
 }
 
+// Detect if a prompt is asking for an organic / character / animal shape
+// that the primitive composer can't model. Triggers Organic Mode.
+const ORGANIC_KEYWORDS = /\b(duck|dog|cat|bird|dragon|dinosaur|t-rex|trex|lizard|snake|fish|whale|shark|elephant|lion|tiger|bear|wolf|fox|rabbit|bunny|deer|horse|pig|cow|sheep|monkey|ape|gorilla|frog|turtle|octopus|squid|penguin|owl|eagle|owl|pegasus|unicorn|mermaid|griffin|phoenix|fairy|elf|orc|goblin|zombie|skeleton|alien|monster|creature|animal|action figure|figurine|figure|character|person|man|woman|child|baby|head|face|skull|hand|foot|arm|leg|body|toy|plushie|teddy|doll|robot|mech|bust|sculpture|gnome|santa|ghost|pumpkin|jack-o-lantern|snowman|reindeer|witch|wizard|cartoon|anime)\b/i;
+function looksOrganic(prompt) { return ORGANIC_KEYWORDS.test(prompt); }
+
 async function generateModelFromPrompt(prompt, presets = [], image = null) {
+  // Auto-route: organic prompts → forge-organic (silhouette → layered ellipses)
+  // unless user has explicitly disabled it via preset
+  const userForcedPrimitive = presets.includes("functional part") || presets.includes("model");
+  const userPickedOrganic = presets.some(p => p.toLowerCase().startsWith("organic"));
+  const useOrganic = userPickedOrganic || (looksOrganic(prompt) && !userForcedPrimitive);
+  const endpoint = useOrganic ? "/api/ai/forge-organic" : "/api/ai/forge-model";
   const payload = { input: prompt, presets };
   if (image && image.base64) {
     payload.imageBase64 = image.base64;
     payload.imageMimeType = image.mime || "image/png";
   }
-  const r = await fetch(`${NEXUS_API_BASE}/api/ai/forge-model`, {
+  const r = await fetch(`${NEXUS_API_BASE}${endpoint}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload),
@@ -886,7 +897,7 @@ function export3MF() {
 // ============================================================
 async function sendToApp(app) {
   if (!viewerGroup) return alert("Generate something first");
-  // 1) If the Knox Forge Desktop Helper is installed, use it — true 1-click open.
+  // 1) If the Forge Desktop Helper is installed, use it — true 1-click open.
   //    The helper handles knox-forge://send?app=<app>&stl=<base64> protocol URLs.
   //    Detection trick: try to navigate to a knox-forge:// URL and listen for blur.
   //    If the helper is installed, the OS opens it and our tab loses focus briefly.
@@ -944,7 +955,7 @@ async function sendToApp(app) {
     try {
       await navigator.share({
         files: [file],
-        title: lastSpec?.name || "Knox Forge model",
+        title: lastSpec?.name || "Forge model",
         text: `Open this 3D model in ${cfg.name}`,
       });
       // Share sheet opened. Some OSes still also save a copy; show the hint.
@@ -962,7 +973,7 @@ async function sendToApp(app) {
   showToast(cfg.fallback, 9000, cfg.web);
 }
 
-// Try to launch Knox Forge Desktop Helper via knox-forge:// protocol.
+// Try to launch Forge Desktop Helper via knox-forge:// protocol.
 // Returns true if the helper was likely invoked (browser lost focus).
 // If the helper isn't installed, the browser does nothing and we fall through.
 async function tryDesktopHelper(app) {
@@ -1087,7 +1098,7 @@ async function fetchAPI(url, options = {}, opts = {}) {
   // Friendly error mapping
   const msg = lastErr?.message || "Unknown error";
   if (/Failed to fetch|NetworkError|ERR_NETWORK/i.test(msg)) {
-    throw new Error("Can't reach Knox Forge servers. Check your internet and try again.");
+    throw new Error("Can't reach Forge servers. Check your internet and try again.");
   }
   if (/429/.test(msg)) {
     throw new Error("Whoa — too many requests in a short window. Wait a few seconds.");
@@ -1483,7 +1494,7 @@ function showSettings(el) {
       </div>
 
       <div class="settings-section">
-        <div class="settings-section-title">Install Knox Forge</div>
+        <div class="settings-section-title">Install Forge</div>
         <div class="settings-row">
           <div>
             <div style="font-weight:600;font-size:13px">As a desktop / phone app</div>
@@ -1524,7 +1535,7 @@ function showSettings(el) {
       <div class="settings-section">
         <div class="settings-section-title">About</div>
         <div style="font-size:11px;color:var(--muted);line-height:1.6">
-          Knox Forge — AI 3D modeling for the rest of us.<br>
+          Forge — AI 3D modeling for the rest of us.<br>
           Type what you want. We model it. You print it.<br>
           Part of the Knox Apps suite.
         </div>
@@ -1567,9 +1578,9 @@ function showHelperInstallInfo() {
         <li>Open your Knox-Forge-Helper folder on your computer.</li>
         <li>Make sure Node.js is installed (<a href="https://nodejs.org" target="_blank" style="color:var(--primary-2)">nodejs.org</a>).</li>
         <li>Double-click <code style="background:var(--bg-2);padding:1px 6px;border-radius:4px">INSTALL-HELPER.bat</code> — it builds + registers the protocol in ~2 min.</li>
-        <li>Come back to Knox Forge. Now clicking "Bambu Studio" auto-opens the slicer with your model loaded.</li>
+        <li>Come back to Forge. Now clicking "Bambu Studio" auto-opens the slicer with your model loaded.</li>
       </ol>
-      <div style="font-size:11px;color:var(--muted);margin-top:14px">If the helper isn't installed, Knox Forge falls back to download mode — you still get the STL, just need to drag it into Bambu yourself.</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:14px">If the helper isn't installed, Forge falls back to download mode — you still get the STL, just need to drag it into Bambu yourself.</div>
     </div>
   `;
   document.body.appendChild(modal);
@@ -1729,14 +1740,14 @@ async function loadModelsFromCloud() {
 // ============================================================
 // Assistant — Gemini chat with 3D-printing system prompt
 // ============================================================
-const ASSISTANT_SYSTEM = `You are Knox Forge's AI assistant. You're an expert in:
+const ASSISTANT_SYSTEM = `You are Forge's AI assistant. You're an expert in:
 - 3D modeling and CAD
 - 3D printing (FDM, resin, SLA, MJF)
 - Bambu Lab printers specifically (X1C, P1S, P1P, A1, A1 mini, H2D)
 - Slicing software (Bambu Studio, Cura, PrusaSlicer, OrcaSlicer)
 - Filament types (PLA, PETG, ABS, TPU, ASA, PA-CF, etc.)
 - Common printing problems and fixes (warping, layer adhesion, stringing, elephant foot, ringing, etc.)
-- This app (Knox Forge): users prompt for a 3D model, get an exportable STL/OBJ for Bambu Labs, Cura, Tinkercad, Blender, Fusion 360. Includes a Scan placeholder, a Discover swipe feed, and saved models.
+- This app (Forge): users prompt for a 3D model, get an exportable STL/OBJ for Bambu Labs, Cura, Tinkercad, Blender, Fusion 360. Includes a Scan placeholder, a Discover swipe feed, and saved models.
 
 Style: helpful, direct, concise. Use bullet points for steps and troubleshooting lists. Don't preface with "Great question!" or similar fluff. If a question isn't about 3D printing or this app, gently redirect.`;
 
@@ -1794,7 +1805,7 @@ function renderAuth(err = null) {
       <div class="auth-card">
         <div class="logo">
           <div class="brand-mark">${brandSvg}</div>
-          <div class="logo-text">Knox Forge<small>Prompt → 3D model → print</small></div>
+          <div class="logo-text">Forge<small>Prompt → 3D model → print</small></div>
         </div>
         ${authMode === "chooser" ? `
           <div class="auth-title">Build anything</div>
@@ -1867,7 +1878,7 @@ function renderShell() {
       <aside class="sidebar">
         <div class="sidebar-brand">
           <div class="brand-mark">${brandSvg}</div>
-          <div class="logo-text">Knox Forge<small>3D &middot; modeled by AI</small></div>
+          <div class="logo-text">Forge<small>3D &middot; modeled by AI</small></div>
         </div>
         ${navItems.map(n => `<button class="nav-item ${n.id === currentRoute ? "active" : ""}" data-route="${n.id}">${n.icon}<span>${n.label}</span></button>`).join("")}
         <div class="user-row">
@@ -1902,7 +1913,7 @@ function renderPage() {
 
 // ───── Forge (Generate) ─────
 let lastSpec = null, lastPrompt = "", lastImage = null;
-const PRESETS = ["model", "TPU / flexible", "resin mold", "toy", "fidget", "functional part", "remix"];
+const PRESETS = ["model", "organic 🦆", "TPU / flexible", "resin mold", "toy", "fidget", "functional part", "remix"];
 const EXAMPLE_PROMPTS = [
   "Phone stand for an iPhone 15 Pro with a 60° viewing angle",
   "Hexagonal pencil holder, 50mm tall, 70mm flat-to-flat, 3mm walls",
@@ -1937,7 +1948,7 @@ function renderForge(el) {
         <input type="text" id="anchor-constraints" placeholder="Optional: anchor sizes — e.g. 'curve = 15 inches' or 'circle 2in, square 5in'" style="flex:1;min-width:200px;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-2);color:var(--text);font-size:13px" />
       </div>
       <div class="row" style="margin-top:10px">
-        <div class="meta">Tip: name real objects (iPhone 15, AA battery, coffee mug). Knox Forge knows their real dimensions.</div>
+        <div class="meta">Tip: name real objects (iPhone 15, AA battery, coffee mug). Forge knows their real dimensions.</div>
         <button class="btn btn-primary" id="gen-btn" style="width:auto;padding:10px 20px">${ICONS.sparkles}<span style="margin-left:6px">Generate</span></button>
       </div>
       <div id="gen-progress" class="gen-progress" style="display:none">
@@ -1973,6 +1984,12 @@ function renderForge(el) {
         <button class="vc-btn" data-view="front" title="Front">▢ Front</button>
         <button class="vc-btn" data-view="side" title="Side">▤ Side</button>
         <span style="flex:1"></span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)">Scale
+          <button class="vc-btn" data-view="scale-dn">−</button>
+          <span id="forge-scale-val" style="min-width:38px;text-align:center;font-weight:700">100%</span>
+          <button class="vc-btn" data-view="scale-up">+</button>
+        </span>
+        <button class="vc-btn" data-view="auto-orient" title="Suggest the best face for the print bed">▼ Orient</button>
         <button class="vc-btn" data-view="wireframe" title="Wireframe toggle">⌨ Wire</button>
         <button class="vc-btn" data-view="spec" title="View raw JSON spec">{ } JSON</button>
       </div>` : ""}
@@ -2082,8 +2099,53 @@ function renderForge(el) {
     const v = b.dataset.view;
     if (v === "wireframe") return toggleWireframe();
     if (v === "spec") return showJsonInspector(el);
+    if (v === "auto-orient") return autoOrientModel();
+    if (v === "scale-up") return adjustModelScale(1.1);
+    if (v === "scale-dn") return adjustModelScale(1 / 1.1);
     return setCameraPreset(v);
   }));
+}
+
+let _forgeScale = 1.0;
+function adjustModelScale(factor) {
+  if (!lastSpec) return;
+  _forgeScale = Math.max(0.1, Math.min(10, _forgeScale * factor));
+  const lbl = document.getElementById("forge-scale-val");
+  if (lbl) lbl.textContent = Math.round(_forgeScale * 100) + "%";
+  // Apply non-destructively to viewerGroup
+  if (viewerGroup) {
+    viewerGroup.scale.set(_forgeScale, _forgeScale, _forgeScale);
+  }
+  // Also update displayed dimensions
+  const dimEl = document.getElementById("model-dims");
+  if (dimEl && lastSpec.estimatedDimensions) {
+    dimEl.innerText = lastSpec.estimatedDimensions + (_forgeScale !== 1 ? ` × ${Math.round(_forgeScale * 100)}%` : "");
+  }
+}
+
+function autoOrientModel() {
+  if (!viewerGroup || !lastSpec) return alert("Generate something first");
+  // Heuristic: rotate the model so its longest dimension lies flat on the bed.
+  // Computes the bounding box, finds the LARGEST face, rotates so that face = bottom.
+  const box = new THREE.Box3().setFromObject(viewerGroup);
+  const size = box.getSize(new THREE.Vector3());
+  // Three faces: XY (bottom area = x*y), XZ (=x*z), YZ (=y*z)
+  const faceXZ = size.x * size.z; // current "bottom" (Y is up)
+  const faceXY = size.x * size.y;
+  const faceYZ = size.y * size.z;
+  let rot = [0, 0, 0];
+  let suggestion = "";
+  if (faceXZ >= faceXY && faceXZ >= faceYZ) {
+    suggestion = "Already oriented well — largest flat face is already on the print bed.";
+  } else if (faceXY >= faceYZ) {
+    rot = [Math.PI / 2, 0, 0];
+    suggestion = "Rotated 90° around X — the X-Y face is now on the bed (was facing forward). Better print stability + less support material.";
+  } else {
+    rot = [0, 0, Math.PI / 2];
+    suggestion = "Rotated 90° around Z — the Y-Z face is now on the bed (was facing right). Better print stability.";
+  }
+  viewerGroup.rotation.set(rot[0], rot[1], rot[2]);
+  showToast(suggestion, 5000, null, "info");
 }
 
 function setCameraPreset(preset) {
@@ -2913,13 +2975,13 @@ function showOnboardingTour() {
   const steps = [
     {
       art: "✨",
-      title: "Welcome to Knox Forge",
-      body: "Knox Forge turns plain English into 3D-printable models. Type what you want, the AI figures out the geometry, sizes it to real-world dimensions, and gives you an STL ready to print.",
+      title: "Welcome to Forge",
+      body: "Forge turns plain English into 3D-printable models. Type what you want, the AI figures out the geometry, sizes it to real-world dimensions, and gives you an STL ready to print.",
     },
     {
       art: "📷",
       title: "Or scan something real",
-      body: "Point your camera at an object. Knox Forge identifies it and builds a model sized to the actual thing. Single photo, multi-angle batch, or video pan — your call.",
+      body: "Point your camera at an object. Forge identifies it and builds a model sized to the actual thing. Single photo, multi-angle batch, or video pan — your call.",
     },
     {
       art: "🔄",
@@ -2960,9 +3022,9 @@ function showOnboardingTour() {
   document.body.appendChild(modal);
 }
 
-// PWA: register service worker so Chrome offers "Install Knox Forge"
+// PWA: register service worker so Chrome offers "Install Forge"
 // in the address bar omnibox. Required for the Web Share API +
-// file_handlers to surface Knox Forge in OS share sheets.
+// file_handlers to surface Forge in OS share sheets.
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").catch(() => { /* silent */ });
@@ -2980,12 +3042,12 @@ window.addEventListener("beforeinstallprompt", (e) => {
 window.addEventListener("appinstalled", () => {
   deferredInstallPrompt = null;
   document.body.classList.remove("can-install");
-  showToast("Knox Forge installed! 'Send to Bambu' now opens your OS share sheet.");
+  showToast("Forge installed! 'Send to Bambu' now opens your OS share sheet.");
 });
 
 async function triggerForgeInstall() {
   if (!deferredInstallPrompt) {
-    showToast("Use Chrome's address bar → Install Knox Forge icon (looks like a monitor with a down arrow).", 7000);
+    showToast("Use Chrome's address bar → Install Forge icon (looks like a monitor with a down arrow).", 7000);
     return;
   }
   deferredInstallPrompt.prompt();
