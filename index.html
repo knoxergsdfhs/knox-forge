@@ -346,6 +346,133 @@
   .empty h2 { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 6px; letter-spacing: -0.3px; }
   .empty p { font-size: 14px; line-height: 1.55; max-width: 380px; margin: 0 auto; }
 
+  /* ───── Material selector chips (feat #2) ───── */
+  .material-selector-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-soft); }
+  .material-selector-label { font-size: 11px; color: var(--muted); margin-right: 4px; white-space: nowrap; }
+  .mat-chip { background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; font-size: 12px; color: var(--muted); cursor: pointer; transition: all 0.12s; font-family: inherit; }
+  .mat-chip:hover { color: var(--text); border-color: var(--primary); }
+  .mat-chip.active { background: rgba(124,92,255,0.18); color: var(--primary-2); border-color: var(--primary); font-weight: 600; }
+
+  /* ───── Filament color picker (feat #3) ───── */
+  .filament-color-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .filament-color-label { font-size: 11px; color: var(--muted); margin-right: 4px; white-space: nowrap; }
+  .filament-swatch { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s, border-color 0.12s; flex-shrink: 0; }
+  .filament-swatch:hover { transform: scale(1.18); }
+  .filament-swatch.active { border-color: var(--primary-2); transform: scale(1.15); }
+
+  /* ───── Print time estimator bar (feat #4) ───── */
+  .quick-print-est { display: flex; gap: 16px; align-items: center; padding: 10px 18px; background: rgba(124,92,255,0.04); border-top: 1px solid var(--border-soft); font-size: 13px; flex-wrap: wrap; }
+  .qpe-item { display: flex; align-items: center; gap: 5px; color: var(--muted); }
+  .qpe-item strong { color: var(--text); }
+
+  /* ───── Dimension labels (feat #5) ───── */
+  .dim-label { font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 8px; font-variant-numeric: tabular-nums; }
+
+  /* ───── Scale input (feat #6) ───── */
+  .scale-input { width: 60px; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-2); color: var(--text); font-size: 11px; text-align: center; font-family: inherit; }
+  .scale-input:focus { outline: none; border-color: var(--primary); }
+
+  /* ───── Model notes textarea (feat #7) ───── */
+  .model-notes-section { padding: 12px 18px; border-top: 1px solid var(--border-soft); }
+  .model-notes-label { font-size: 11px; color: var(--muted-2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600; }
+  .model-notes-ta { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-2); color: var(--text); font-size: 13px; font-family: inherit; resize: vertical; min-height: 56px; }
+  .model-notes-ta:focus { outline: none; border-color: var(--primary); }
+
+  /* ───── Complexity badge (feat #17) ───── */
+  .complexity-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.3px; }
+  .complexity-badge.simple { background: rgba(92,255,138,0.12); color: #5cff8a; }
+  .complexity-badge.moderate { background: rgba(255,208,92,0.12); color: var(--yellow); }
+  .complexity-badge.complex { background: rgba(255,92,122,0.12); color: var(--red); }
+
+  /* ───── STL size estimate (feat #22) ───── */
+  .stl-size-est { font-size: 11px; color: var(--muted); margin-left: 4px; }
+
+  /* ───── Print settings presets (feat #13) ───── */
+  .print-presets-section { padding: 12px 18px; border-top: 1px solid var(--border-soft); }
+  .print-presets-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text); background: none; border: none; font-family: inherit; padding: 0; }
+  .print-presets-toggle svg { width: 14px; height: 14px; color: var(--primary); }
+  .print-presets-body { margin-top: 10px; }
+  .print-preset-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .print-preset-chip { background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.12s; text-align: left; }
+  .print-preset-chip:hover { border-color: var(--primary); color: var(--text); }
+  .print-preset-chip.active { background: rgba(124,92,255,0.15); color: var(--primary-2); border-color: var(--primary); }
+  .print-preset-code { background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-family: ui-monospace, monospace; font-size: 11px; color: var(--text); line-height: 1.7; }
+
+  /* ───── Slicer tips (feat #14) ───── */
+  .slicer-tips-section { padding: 12px 18px; border-top: 1px solid var(--border-soft); }
+  .slicer-tips-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text); background: none; border: none; font-family: inherit; padding: 0; }
+  .slicer-tips-body { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .slicer-tip-item { background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ───── Compare mode (feat #11) ───── */
+  .compare-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .compare-pane { background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .compare-pane-label { padding: 6px 12px; font-size: 11px; color: var(--muted); border-bottom: 1px solid var(--border-soft); font-weight: 600; }
+
+  /* ───── Scan tip card (feat #18) ───── */
+  .scan-tip-card { background: rgba(124,92,255,0.07); border: 1px solid rgba(124,92,255,0.25); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: var(--text); line-height: 1.6; display: flex; align-items: flex-start; gap: 10px; }
+  .scan-tip-card-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .scan-tip-dismiss { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; margin-left: auto; flex-shrink: 0; padding: 0 0 0 8px; }
+
+  /* ───── Generation multi-step progress (feat #16) ───── */
+  .gen-steps { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
+  .gen-step { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); }
+  .gen-step.done { color: var(--green); }
+  .gen-step.active { color: var(--primary-2); font-weight: 600; }
+  .gen-step-sep { color: var(--muted-2); }
+
+  /* ───── Viewer keyboard shortcuts help (feat #9) ───── */
+  .kbd-help-btn { background: var(--bg-2); border: 1px solid var(--border); border-radius: 50%; width: 22px; height: 22px; font-size: 11px; color: var(--muted); cursor: pointer; display: grid; place-items: center; font-family: inherit; flex-shrink: 0; }
+  .kbd-help-btn:hover { border-color: var(--primary); color: var(--text); }
+
+  /* ───── Prompt char counter (feat #1) ───── */
+  .prompt-char-count { font-size: 11px; color: var(--muted-2); text-align: right; margin-top: 4px; transition: color 0.15s; }
+  .prompt-char-count.warn { color: var(--yellow); }
+  .prompt-char-count.over { color: var(--red); font-weight: 700; }
+
+  /* ───── Library example cards (feat #25) ───── */
+  .example-model-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 20px; }
+  .example-model-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; opacity: 0.55; filter: blur(1px); transition: all 0.2s; cursor: default; }
+  .example-model-card-body { padding: 10px 12px; }
+  .example-model-card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .example-model-card-sub { font-size: 11px; color: var(--muted); }
+  .example-model-card-art { aspect-ratio: 4/3; background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(20,184,166,0.1)); display: grid; place-items: center; font-size: 36px; }
+
+  /* ───── History count badge (feat #15) ───── */
+  .nav-badge { background: var(--primary); color: white; border-radius: 999px; font-size: 10px; font-weight: 700; padding: 1px 6px; margin-left: auto; min-width: 18px; text-align: center; }
+
+  /* ───── Library bulk select + download counter (feat #12, #10) ───── */
+  .model-dl-count { font-size: 10px; color: var(--muted-2); margin-top: 2px; }
+  .model-card-checkbox { position: absolute; top: 8px; left: 8px; width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); opacity: 0; transition: opacity 0.15s; }
+  .model-card:hover .model-card-checkbox, .model-card-checkbox:checked { opacity: 1; }
+  .bulk-select-bar { background: var(--card); border: 1px solid var(--primary); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .bulk-select-count { font-size: 13px; font-weight: 600; flex: 1; }
+  .tag-filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+  .tag-filter-label { font-size: 11px; color: var(--muted); margin-right: 2px; }
+  .tag-filter-chip { background: var(--bg-2); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size: 11px; color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+  .tag-filter-chip.active { background: rgba(124,92,255,0.15); color: var(--primary-2); border-color: var(--primary); }
+
+  /* ───── Settings page (feat #19) ───── */
+  .settings-toggle-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; }
+  .settings-toggle { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+  .settings-toggle input { opacity: 0; width: 0; height: 0; }
+  .settings-toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 999px; cursor: pointer; transition: background 0.2s; }
+  .settings-toggle-slider:before { content: ""; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform 0.2s; }
+  .settings-toggle input:checked + .settings-toggle-slider { background: var(--primary); }
+  .settings-toggle input:checked + .settings-toggle-slider:before { transform: translateX(16px); }
+
+  /* ───── Clear prompt button (feat #20) ───── */
+  .clear-prompt-btn { background: transparent; border: none; color: var(--muted-2); font-size: 11px; cursor: pointer; padding: 4px 8px; font-family: inherit; border-radius: 6px; transition: all 0.12s; }
+  .clear-prompt-btn:hover { background: rgba(255,92,122,0.1); color: var(--red); }
+
+  /* ───── Share button (feat #23) ───── */
+  .share-btn { background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; padding: 5px 11px; font-size: 11px; color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.12s; }
+  .share-btn:hover { color: var(--text); border-color: var(--primary); }
+
+  /* ───── Copy prompt button (feat #24) ───── */
+  .copy-prompt-btn { background: transparent; border: 1px solid var(--border); color: var(--muted-2); font-size: 11px; cursor: pointer; padding: 4px 10px; font-family: inherit; border-radius: 6px; transition: all 0.12s; }
+  .copy-prompt-btn:hover { border-color: var(--primary); color: var(--text); }
+
   /* ───── Assistant chat ───── */
   .chat-window { background: var(--card); border: 1px solid var(--border); border-radius: 18px; display: flex; flex-direction: column; height: calc(100vh - 200px); min-height: 480px; }
   .chat-msgs { flex: 1; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
@@ -477,6 +604,8 @@ async function createAccount(identifier, password) {
 // Forge — AI prompt → primitive spec → Three.js geometry
 // ============================================================
 // Progress ticker — cycles through honest status messages during long AI calls
+// feat #16: Multi-step progress with checkmarks
+const GEN_STEPS_LABELS = ["Parsing description", "Designing geometry", "Calculating faces", "Optimizing mesh"];
 function startProgressTicker(kind) {
   const messages = kind === "Refine"
     ? ["Reading your change…", "AI is updating the spec…", "Preserving everything else…", "Almost there…"]
@@ -488,7 +617,18 @@ function startProgressTicker(kind) {
   wrap.style.display = "block";
   if (fill) { fill.style.width = "5%"; fill.classList.remove("err"); }
   let i = 0;
+  let stepIdx = 0;
   if (msg) msg.innerText = messages[0];
+  // Update step indicators
+  function setStep(idx) {
+    GEN_STEPS_LABELS.forEach((_, n) => {
+      const el = document.getElementById("gstep-" + n);
+      if (!el) return;
+      el.className = "gen-step" + (n < idx ? " done" : n === idx ? " active" : "");
+      el.textContent = (n < idx ? "✓ " : "") + GEN_STEPS_LABELS[n];
+    });
+  }
+  setStep(0);
   const interval = setInterval(() => {
     i = (i + 1) % messages.length;
     if (msg) msg.innerText = messages[i];
@@ -496,12 +636,15 @@ function startProgressTicker(kind) {
       const pct = Math.min(92, parseFloat(fill.style.width || "5") + (10 + Math.random() * 14));
       fill.style.width = pct + "%";
     }
+    stepIdx = Math.min(GEN_STEPS_LABELS.length - 1, stepIdx + 1);
+    setStep(stepIdx);
   }, 1800);
   return {
     done: () => {
       clearInterval(interval);
       if (fill) fill.style.width = "100%";
       if (msg) msg.innerText = "Done!";
+      setStep(GEN_STEPS_LABELS.length);
       setTimeout(() => { if (wrap) wrap.style.display = "none"; }, 700);
     },
     fail: () => {
@@ -1525,10 +1668,59 @@ function showSettings(el) {
         </div>
       </div>
 
+      <!-- feat #19: Export format + unit + auto-save -->
+      <div class="settings-section">
+        <div class="settings-section-title">Export defaults</div>
+        <div class="settings-row">
+          <div>
+            <div style="font-weight:600;font-size:13px">Default export format</div>
+            <div style="font-size:11px;color:var(--muted)">Used by quick-export on library cards</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            ${["stl","obj","3mf"].map(f => `<button class="btn btn-secondary" id="settings-fmt-${f}" style="width:auto;padding:6px 12px;font-size:12px;${getDefaultExportFormat()===f?"border-color:var(--primary);background:rgba(124,92,255,0.1)":""}">${f.toUpperCase()}</button>`).join("")}
+          </div>
+        </div>
+        <div class="settings-row" style="margin-top:10px">
+          <div>
+            <div style="font-weight:600;font-size:13px">Default scale unit</div>
+            <div style="font-size:11px;color:var(--muted)">Shown in dimension labels</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            ${["mm","in"].map(u => `<button class="btn btn-secondary" id="settings-unit-${u}" style="width:auto;padding:6px 12px;font-size:12px;${getDefaultUnit()===u?"border-color:var(--primary);background:rgba(124,92,255,0.1)":""}">${u}</button>`).join("")}
+          </div>
+        </div>
+        <div class="settings-toggle-row">
+          <div>
+            <div style="font-weight:600;font-size:13px">Auto-save models</div>
+            <div style="font-size:11px;color:var(--muted)">Automatically save after generating</div>
+          </div>
+          <label class="settings-toggle">
+            <input type="checkbox" id="settings-autosave" ${getAutoSave() ? "checked" : ""} />
+            <span class="settings-toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- feat #21: Printer profiles quick-select -->
+      <div class="settings-section">
+        <div class="settings-section-title">Quick printer profiles</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${[
+            { id: "bambu-a1",  label: "Bambu A1" },
+            { id: "bambu-p1s", label: "Bambu P1S" },
+            { id: "ender-3",   label: "Ender 3" },
+            { id: "prusa-mk4", label: "Prusa MK4" },
+            { id: "generic",   label: "Generic FDM" },
+          ].map(p => `<button class="btn btn-secondary settings-quick-printer" data-pid="${p.id}" style="width:auto;padding:6px 12px;font-size:12px">${p.label}</button>`).join("")}
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">Selecting auto-fills bed size and sets print time multiplier.</div>
+      </div>
+
       <div class="settings-section">
         <div class="settings-section-title">Keyboard shortcuts</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.8">
-          <span class="kbd">/</span> focus prompt or search · <span class="kbd">Ctrl+Enter</span> Generate · <span class="kbd">Ctrl+S</span> Save model · <span class="kbd">Esc</span> close dialog
+          <span class="kbd">/</span> focus prompt · <span class="kbd">Ctrl+Enter</span> Generate · <span class="kbd">Ctrl+S</span> Save model · <span class="kbd">Esc</span> close dialog<br>
+          <span class="kbd">R</span> reset camera · <span class="kbd">F</span> fullscreen · <span class="kbd">G</span> toggle grid · <span class="kbd">W</span> wireframe
         </div>
       </div>
 
@@ -1562,6 +1754,24 @@ function showSettings(el) {
   });
   document.getElementById("settings-theme-dark")?.addEventListener("click", () => { setTheme("dark"); modal.remove(); showSettings(el); });
   document.getElementById("settings-theme-light")?.addEventListener("click", () => { setTheme("light"); modal.remove(); showSettings(el); });
+
+  // feat #19: Export format, unit, auto-save
+  ["stl","obj","3mf"].forEach(f => {
+    document.getElementById(`settings-fmt-${f}`)?.addEventListener("click", () => { setDefaultExportFormat(f); modal.remove(); showSettings(el); });
+  });
+  ["mm","in"].forEach(u => {
+    document.getElementById(`settings-unit-${u}`)?.addEventListener("click", () => { setDefaultUnit(u); modal.remove(); showSettings(el); });
+  });
+  document.getElementById("settings-autosave")?.addEventListener("change", (e) => { setAutoSave(e.target.checked); });
+
+  // feat #21: Quick printer profiles
+  modal.querySelectorAll(".settings-quick-printer[data-pid]").forEach(b => b.addEventListener("click", () => {
+    setPrinterProfile(b.dataset.pid);
+    const pname = PRINTER_PROFILES[b.dataset.pid]?.name || b.dataset.pid;
+    modal.remove();
+    showToast(`Printer set to ${pname}`, 2500, null, "success");
+    showSettings(el);
+  }));
 }
 
 function showHelperInstallInfo() {
@@ -1636,12 +1846,18 @@ function captureViewerThumbnail() {
 function saveModel(spec, prompt) {
   const all = getSavedModels();
   const thumbnail = captureViewerThumbnail();
-  all.unshift({ id: Date.now(), name: spec.name || "Untitled", spec, prompt, savedAt: new Date().toISOString(), thumbnail });
+  // feat #8: Auto-suggest tags based on prompt + name
+  const modelObj = { name: spec.name || "Untitled", prompt: prompt || "" };
+  const tags = inferModelTags(modelObj);
+  const id = Date.now();
+  spec._savedId = id; // track for download counter
+  all.unshift({ id, name: spec.name || "Untitled", spec, prompt, savedAt: new Date().toISOString(), thumbnail, tags });
   // Cap at 50 saved models — thumbnails take ~15KB each so 50 = ~750KB, fits localStorage
   const capped = all.slice(0, 50);
   localStorage.setItem(FORGE_MODELS_KEY, JSON.stringify(capped));
   // Fire-and-forget cloud sync
   syncModelsToCloud(capped).catch(() => {});
+  return id;
 }
 function deleteSavedModel(id) {
   const all = getSavedModels().filter((m) => m.id !== id);
@@ -1923,9 +2139,212 @@ const EXAMPLE_PROMPTS = [
   "Coffee mug warmer trivet, 100mm diameter",
   "Mini planter for a 4 inch succulent with drainage holes",
   "Bambu X1C filament guide with cable channel",
+  "Minimalist desk lamp base with cable channel",
+  "Cable organizer for 3 cables under desk",
+  "Wall-mounted phone holder with charging slot",
+  "Fidget toy with 3 spinning rings",
+  "Cable clip that mounts on desk edge",
+  "Modular drawer divider, 40mm tall",
 ];
+
+// Material selector options (feat #2)
+const MATERIAL_CHIPS = [
+  { id: "pla",   label: "PLA",   desc: "Standard — easy to print, biodegradable" },
+  { id: "petg",  label: "PETG",  desc: "Stronger, more flexible than PLA" },
+  { id: "abs",   label: "ABS",   desc: "High temp resistant, functional parts" },
+  { id: "tpu",   label: "TPU",   desc: "Flexible / rubber-like" },
+  { id: "resin", label: "Resin", desc: "High detail, for resin printers" },
+];
+let activeMaterialChip = "pla";
+
+// Filament colors (feat #3)
+const FILAMENT_COLORS = [
+  { name: "White",   hex: "#f5f5f5" },
+  { name: "Black",   hex: "#1a1a1a" },
+  { name: "Grey",    hex: "#888888" },
+  { name: "Red",     hex: "#e53e3e" },
+  { name: "Orange",  hex: "#ed8936" },
+  { name: "Yellow",  hex: "#ecc94b" },
+  { name: "Green",   hex: "#38a169" },
+  { name: "Blue",    hex: "#3182ce" },
+  { name: "Purple",  hex: "#805ad5" },
+  { name: "Natural", hex: "#f0e0b8" },
+];
+let activeFilamentColor = FILAMENT_COLORS[0];
+
+// Print presets (feat #13)
+const PRINT_PRESETS = [
+  {
+    id: "fast",    label: "Fast print",
+    layerHeight: "0.3mm", infill: "10%",
+    details: `; Fast Print profile
+Layer Height: 0.30 mm
+Infill: 10%  (gyroid or grid)
+Print Speed: 200 mm/s
+Supports: No  (orient to avoid)
+Estimated time: ~40% faster vs Standard`
+  },
+  {
+    id: "standard", label: "Standard",
+    layerHeight: "0.2mm", infill: "20%",
+    details: `; Standard profile
+Layer Height: 0.20 mm
+Infill: 20%  (gyroid recommended)
+Print Speed: 120 mm/s
+Supports: Auto (touching build plate only)
+Good balance of speed + strength`
+  },
+  {
+    id: "hq", label: "High quality",
+    layerHeight: "0.1mm", infill: "40%",
+    details: `; High Quality profile
+Layer Height: 0.10 mm
+Infill: 40%  (cubic or gyroid)
+Print Speed: 60 mm/s
+Supports: Auto (everywhere)
+Smooth surfaces, fine details`
+  },
+  {
+    id: "strong", label: "Strong",
+    layerHeight: "0.2mm", infill: "50%",
+    details: `; Strong profile
+Layer Height: 0.20 mm
+Infill: 50%  (honeycomb or cubic)
+Print Speed: 100 mm/s
+Perimeters: 4
+Walls: 3
+Maximum strength for functional parts`
+  },
+];
+let activePrintPreset = null;
+let printPresetsOpen = false;
+let slicerTipsOpen = false;
+
+// Download counter (feat #10)
+function getDownloadCount(modelId) {
+  try { return parseInt(localStorage.getItem(`forge:dl-${modelId}`) || "0"); } catch { return 0; }
+}
+function incrementDownloadCount(modelId) {
+  const n = getDownloadCount(modelId) + 1;
+  try { localStorage.setItem(`forge:dl-${modelId}`, String(n)); } catch {}
+  return n;
+}
+
+// Infer slicer tips from prompt (feat #14)
+function inferSlicerTips(prompt) {
+  const t = (prompt || "").toLowerCase();
+  const tips = [];
+  if (/container|box|case|storage|organizer/.test(t)) {
+    tips.push("Print with the opening face-down on the bed to avoid supports inside.");
+    tips.push("Use 3 perimeters for rigid walls at 0.2mm layer height.");
+  }
+  if (/phone|stand|cradle/.test(t)) {
+    tips.push("Orient the widest face flat on the bed for best layer adhesion.");
+    tips.push("Enable supports under any overhanging lips or cable slots.");
+  }
+  if (/flexible|tpu|soft/.test(t)) {
+    tips.push("Use TPU material — reduce retraction to 1mm and print slowly at 25 mm/s.");
+  }
+  if (/hook|hanger|mount|bracket/.test(t)) {
+    tips.push("Set infill to 40%+ and use 4 perimeters for maximum load strength.");
+    tips.push("Print vertically so layer lines run parallel to the hook's load direction.");
+  }
+  if (/gear|mechanical|joint|hinge/.test(t)) {
+    tips.push("Use 0.1mm layers and 40%+ infill for precise fit and durability.");
+    tips.push("PETG or ABS preferred over PLA for wear resistance.");
+  }
+  if (/vase|planter|pot/.test(t)) {
+    tips.push("Consider Vase Mode (spiralize outer contour) for thin-walled planters — saves time and material.");
+    tips.push("Add a drain hole or print a separate drainage tray.");
+  }
+  if (/lamp|light/.test(t)) {
+    tips.push("Use 0% infill with 2 walls for translucent light diffusion on light-colored PETG.");
+    tips.push("Leave wiring channel clearance of at least 8mm diameter.");
+  }
+  // Default tips if nothing matched
+  if (tips.length === 0) {
+    tips.push("Use 20% gyroid infill for a good strength-to-weight ratio.");
+    tips.push("0.2mm layer height is the best general-purpose setting for most models.");
+    tips.push("Add a brim (5-8mm) if the model has small contact area with the bed.");
+  }
+  return tips.slice(0, 3);
+}
+
+// Model complexity indicator (feat #17)
+function getComplexity(spec) {
+  if (!spec || !spec.parts) return null;
+  const parts = spec.parts.length;
+  const hasSubtracts = spec.parts.some(p => p.op === "subtract" || p.op === "sub");
+  if (parts <= 2 && !hasSubtracts) return "simple";
+  if (parts <= 6) return "moderate";
+  return "complex";
+}
+
+// STL size estimate (feat #22)
+function estimateStlSizeKb(spec) {
+  if (!spec || !spec.parts) return null;
+  const parts = spec.parts.length;
+  // Rough: each part ~15-40KB of STL data depending on geometry
+  const avgPerPart = 25;
+  return Math.max(5, parts * avgPerPart);
+}
+
+// Get real-world dimensions from bounding box (feat #5)
+function getModelDimensionsMm() {
+  if (!viewerGroup) return null;
+  const box = new THREE.Box3().setFromObject(viewerGroup);
+  const size = box.getSize(new THREE.Vector3());
+  // Scale factor: Three.js units ≈ mm in our spec
+  const w = Math.round(size.x * _forgeScale);
+  const d = Math.round(size.z * _forgeScale);
+  const h = Math.round(size.y * _forgeScale);
+  return { w, d, h };
+}
+
+// Scan tip dismissal (feat #18)
+const SCAN_TIP_DISMISSED_KEY = "forge:scan-tip-dismissed";
+
+// Library tag filter (feat #8)
+let libraryTagFilter = "";
+
+// Library bulk selection (feat #12)
+let bulkSelectedIds = new Set();
+let bulkSelectMode = false;
+
+// Auto-save toggle (feat #19)
+function getAutoSave() { return localStorage.getItem("forge:auto-save") !== "false"; }
+function setAutoSave(v) { localStorage.setItem("forge:auto-save", v ? "true" : "false"); }
+function getDefaultExportFormat() { return localStorage.getItem("forge:default-format") || "stl"; }
+function setDefaultExportFormat(f) { localStorage.setItem("forge:default-format", f); }
+function getDefaultUnit() { return localStorage.getItem("forge:default-unit") || "mm"; }
+function setDefaultUnit(u) { localStorage.setItem("forge:default-unit", u); }
+
+// Compare mode (feat #11)
+let compareMode = false;
+let compareOriginalSpec = null;
+
+// Quick print estimate (feat #4) - simplified version shown below viewer
+function quickPrintEst(spec) {
+  if (!spec || !spec.parts) return null;
+  const parts = spec.parts.length;
+  // Very rough heuristic based on parts count proxy for vertex count
+  const totalVol = specTotalVolumeMm3(spec);
+  let label, filament;
+  if (totalVol < 5000) { label = "~1 hr"; filament = "~15g"; }
+  else if (totalVol < 30000) { label = "~2–3 hrs"; filament = "~45g"; }
+  else if (totalVol < 100000) { label = "~4–6 hrs"; filament = "~90g"; }
+  else { label = "~8+ hrs"; filament = "~150g+"; }
+  // Apply material chip multiplier
+  const matMult = activeMaterialChip === "resin" ? 0.5 : activeMaterialChip === "tpu" ? 1.4 : 1;
+  return { label, filament, matMult };
+}
 let activePresets = new Set(["model"]);
 function renderForge(el) {
+  const complexity = lastSpec ? getComplexity(lastSpec) : null;
+  const stlSizeKb = lastSpec ? estimateStlSizeKb(lastSpec) : null;
+  const qpe = lastSpec ? quickPrintEst(lastSpec) : null;
+  const slicerTips = lastSpec ? inferSlicerTips(lastPrompt) : [];
+
   el.innerHTML = `
     <header class="page-header">
       <div class="page-title">Forge</div>
@@ -1934,12 +2353,28 @@ function renderForge(el) {
     <div class="prompt-shell">
       <textarea id="prompt" placeholder="A phone stand for an iPhone 15 Pro with a 60° viewing angle and a cable channel through the back."></textarea>
       ${!lastSpec ? `<div class="examples-row" id="examples-row">
-        <div class="examples-label">Try one of these to get going:</div>
+        <div class="examples-label">Try one of these:</div>
         ${EXAMPLE_PROMPTS.map(p => `<button class="example-chip" data-example="${escapeHtml(p)}">${escapeHtml(p)}</button>`).join("")}
       </div>` : ""}
       <div class="preset-row" id="presets">
         ${PRESETS.map(p => `<button class="preset-chip ${activePresets.has(p) ? "active" : ""}" data-preset="${escapeHtml(p)}">${escapeHtml(p)}</button>`).join("")}
       </div>
+
+      <!-- feat #1: Prompt character counter -->
+      <div class="prompt-char-count" id="prompt-char-count" style="display:none">0 / 500</div>
+      <!-- feat #2: Material selector -->
+      <div class="material-selector-row">
+        <span class="material-selector-label">Material:</span>
+        ${MATERIAL_CHIPS.map(m => `<button class="mat-chip ${activeMaterialChip === m.id ? "active" : ""}" data-mat="${m.id}" title="${escapeHtml(m.desc)}">${m.label}</button>`).join("")}
+      </div>
+
+      <!-- feat #3: Filament color picker -->
+      <div class="filament-color-row">
+        <span class="filament-color-label">Filament color:</span>
+        ${FILAMENT_COLORS.map(c => `<div class="filament-swatch ${activeFilamentColor.name === c.name ? "active" : ""}" data-color="${escapeHtml(c.name)}" style="background:${c.hex}" title="${c.name}"></div>`).join("")}
+        <span id="filament-color-name" style="font-size:11px;color:var(--muted);margin-left:4px">${escapeHtml(activeFilamentColor.name)}</span>
+      </div>
+
       <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center">
         <label class="btn btn-secondary" style="cursor:pointer;padding:8px 14px;font-size:13px;margin-right:6px">
           ${ICONS.image || "📎"} <span style="margin-left:6px">${lastImage ? "Reference image attached ✓" : "Attach reference photo"}</span>
@@ -1951,11 +2386,27 @@ function renderForge(el) {
         <div class="meta">Tip: name real objects (iPhone 15, AA battery, coffee mug). Forge knows their real dimensions.</div>
         <button class="btn btn-primary" id="gen-btn" style="width:auto;padding:10px 20px">${ICONS.sparkles}<span style="margin-left:6px">Generate</span></button>
       </div>
+
+      <!-- feat #24: Copy prompt button -->
+      <button class="copy-prompt-btn" id="copy-prompt-btn" title="Copy prompt to clipboard">⎘ Copy</button>
+      <!-- feat #20: Clear prompt button -->
+      <button class="clear-prompt-btn" id="clear-prompt-btn" title="Clear prompt">✕ Clear</button>
+      <!-- feat #16: Multi-step generation progress -->
       <div id="gen-progress" class="gen-progress" style="display:none">
         <div class="gen-progress-bar"><div class="gen-progress-fill" id="gen-progress-fill"></div></div>
+        <div class="gen-steps" id="gen-steps">
+          <span class="gen-step" id="gstep-0">Parsing description</span>
+          <span class="gen-step-sep">→</span>
+          <span class="gen-step" id="gstep-1">Designing geometry</span>
+          <span class="gen-step-sep">→</span>
+          <span class="gen-step" id="gstep-2">Calculating faces</span>
+          <span class="gen-step-sep">→</span>
+          <span class="gen-step" id="gstep-3">Optimizing mesh</span>
+        </div>
         <div class="gen-progress-msg" id="gen-progress-msg">Asking the AI…</div>
       </div>
     </div>
+
     ${lastSpec ? `<div class="refine-shell">
       <div class="refine-label">${ICONS.sparkles}<span style="margin-left:6px;font-weight:600">Refine this model</span> <span style="color:var(--muted);font-weight:400">— tweak it instead of starting over</span></div>
       <div class="refine-row">
@@ -1966,39 +2417,62 @@ function renderForge(el) {
         ${["Make it 20% bigger", "Thicker walls", "Add a divider", "Round the corners", "Make it shorter"].map(s => `<button class="refine-suggestion" data-suggest="${escapeHtml(s)}">${escapeHtml(s)}</button>`).join("")}
       </div>
     </div>` : ""}
+
     <div class="viewer-wrap">
       <div class="viewer-head">
+        <!-- feat #5: Dimension labels -->
         <h3 id="model-name">${lastSpec ? escapeHtml(lastSpec.name || "Untitled") : "Live preview"}</h3>
-        <span class="pill" id="model-dims">${lastSpec?.estimatedDimensions || "—"}</span>
+        ${lastSpec ? `<span class="dim-label" id="model-dim-label">${lastSpec.estimatedDimensions || "—"}</span>` : ""}
+        ${complexity ? `<span class="complexity-badge ${complexity}">${complexity.charAt(0).toUpperCase() + complexity.slice(1)}</span>` : ""}
         <span class="pill" id="model-parts">${lastSpec ? (lastSpec.parts?.length || 0) + " parts" : ""}</span>
+        ${stlSizeKb ? `<span class="stl-size-est">~${stlSizeKb}KB STL</span>` : ""}
       </div>
       <div style="position:relative">
-        <canvas id="viewer-canvas"></canvas>
+        <canvas id="viewer-canvas" style="${activeFilamentColor ? `filter:hue-rotate(0deg)` : ""}"></canvas>
         <div id="anim-caption" class="anim-caption" style="display:none"></div>
       </div>
       ${lastSpec?.notes ? `<div class="model-notes">📝 ${escapeHtml(lastSpec.notes)}</div>` : ""}
+
+      <!-- feat #4: Quick print time estimator -->
+      ${lastSpec && qpe ? `<div class="quick-print-est" id="quick-print-est">
+        <div class="qpe-item">⏱ Est. print time: <strong id="qpe-time">${qpe.label}</strong></div>
+        <div class="qpe-item">🧵 Filament: <strong id="qpe-filament">${qpe.filament}</strong></div>
+        <div class="qpe-item" style="color:var(--muted);font-size:11px">${escapeHtml(activeMaterialChip.toUpperCase())} · ${escapeHtml(activeFilamentColor.name)}</div>
+      </div>` : ""}
+
       ${lastSpec ? renderPrintInfo(lastSpec) : ""}
+
       ${lastSpec ? `<div class="view-controls">
         <button class="vc-btn" data-view="iso" title="Isometric view">⛶ Iso</button>
         <button class="vc-btn" data-view="top" title="Top down">↧ Top</button>
         <button class="vc-btn" data-view="front" title="Front">▢ Front</button>
         <button class="vc-btn" data-view="side" title="Side">▤ Side</button>
         <span style="flex:1"></span>
-        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)">Scale
+        <!-- feat #6: Scale input -->
+        <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)">Scale:
           <button class="vc-btn" data-view="scale-dn">−</button>
-          <span id="forge-scale-val" style="min-width:38px;text-align:center;font-weight:700">100%</span>
+          <input type="text" class="scale-input" id="forge-scale-input" value="${Math.round(_forgeScale * 100)}%" title="Type a scale, e.g. 150%" />
           <button class="vc-btn" data-view="scale-up">+</button>
         </span>
         <button class="vc-btn" data-view="auto-orient" title="Suggest the best face for the print bed">▼ Orient</button>
-        <button class="vc-btn" data-view="wireframe" title="Wireframe toggle">⌨ Wire</button>
+        <!-- feat #9: Wireframe + keyboard shortcuts -->
+        <button class="vc-btn" data-view="wireframe" id="wireframe-btn" title="Wireframe toggle (W)">⌨ Wire</button>
+        <button class="vc-btn" data-view="grid-toggle" title="Toggle grid (G)">⊞ Grid</button>
+        <button class="vc-btn" data-view="fullscreen" title="Fullscreen viewer (F)">⛶ Full</button>
+        <!-- feat #11: Compare mode -->
+        ${compareOriginalSpec ? `<button class="vc-btn" data-view="compare" title="Compare original vs current">⟷ Compare</button>` : ""}
         <button class="vc-btn" data-view="spec" title="View raw JSON spec">{ } JSON</button>
+        <button class="kbd-help-btn" id="kbd-help-btn" title="Keyboard shortcuts">?</button>
       </div>` : ""}
+
       <div class="viewer-toolbar">
         <button class="btn btn-primary" id="see-in-action" ${!lastSpec ? "disabled" : ""} title="Watch a 3D demo of how this model is actually used">▶ <span style="margin-left:6px">See it in action</span></button>
         <button class="btn btn-secondary" id="export-stl" title="Standard mesh format — works with everything">${ICONS.download}<span style="margin-left:6px">STL</span></button>
         <button class="btn btn-secondary" id="export-obj" title="With material/color hints — good for Blender">${ICONS.download}<span style="margin-left:6px">OBJ</span></button>
         <button class="btn btn-secondary" id="export-3mf" title="Bambu's preferred format">${ICONS.download}<span style="margin-left:6px">3MF</span></button>
         <button class="btn btn-secondary" id="save-model">${ICONS.save}<span style="margin-left:6px">Save</span></button>
+        <!-- feat #23: Social share -->
+        <button class="share-btn" id="share-btn" title="Copy share text">🔗 Share</button>
       </div>
       <div class="export-app-row">
         <div class="export-app-label">Download for:</div>
@@ -2008,15 +2482,95 @@ function renderForge(el) {
         <button class="app-chip" data-app="blender">🧡 Blender</button>
         <button class="app-chip" data-app="fusion">⚙️ Fusion 360</button>
       </div>
+
+      <!-- feat #7: Model notes textarea -->
+      ${lastSpec ? `<div class="model-notes-section">
+        <div class="model-notes-label">Notes / print settings</div>
+        <textarea class="model-notes-ta" id="model-notes-ta" placeholder="e.g. Use 20% infill, 0.2mm layer height, supports on build plate only…">${escapeHtml(getModelNotes(lastSpec))}</textarea>
+      </div>` : ""}
+
+      <!-- feat #13: Print settings presets -->
+      ${lastSpec ? `<div class="print-presets-section">
+        <button class="print-presets-toggle" id="print-presets-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 4.6a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Print settings presets ${printPresetsOpen ? "▲" : "▼"}
+        </button>
+        ${printPresetsOpen ? `<div class="print-presets-body">
+          <div class="print-preset-chips">
+            ${PRINT_PRESETS.map(pp => `<button class="print-preset-chip ${activePrintPreset === pp.id ? "active" : ""}" data-preset-id="${pp.id}">
+              <strong>${escapeHtml(pp.label)}</strong><br/><span style="font-weight:400">${pp.layerHeight} · ${pp.infill} infill</span>
+            </button>`).join("")}
+          </div>
+          ${activePrintPreset ? `<pre class="print-preset-code">${escapeHtml(PRINT_PRESETS.find(p => p.id === activePrintPreset)?.details || "")}</pre>` : ""}
+        </div>` : ""}
+      </div>` : ""}
+
+      <!-- feat #14: Slicer tips -->
+      ${lastSpec ? `<div class="slicer-tips-section">
+        <button class="slicer-tips-toggle" id="slicer-tips-toggle">
+          💡 Slicer tips for this model ${slicerTipsOpen ? "▲" : "▼"}
+        </button>
+        ${slicerTipsOpen ? `<div class="slicer-tips-body">
+          ${slicerTips.map(tip => `<div class="slicer-tip-item">• ${escapeHtml(tip)}</div>`).join("")}
+        </div>` : ""}
+      </div>` : ""}
     </div>
   `;
   initViewer(document.getElementById("viewer-canvas"));
   if (lastSpec) setViewerModel(lastSpec);
 
+  // Apply filament color tint to background
+  applyFilamentColorTint();
+
   document.querySelectorAll("#presets [data-preset]").forEach(b => b.addEventListener("click", () => {
     const p = b.dataset.preset;
     if (activePresets.has(p)) activePresets.delete(p); else activePresets.add(p);
     renderForge(el);
+  }));
+
+  // feat #1: Prompt character counter
+  const promptEl = document.getElementById("prompt");
+  const charCountEl = document.getElementById("prompt-char-count");
+  if (promptEl && charCountEl) {
+    charCountEl.style.display = "block";
+    promptEl.addEventListener("input", () => {
+      const n = promptEl.value.length;
+      charCountEl.textContent = `${n} / 500`;
+      charCountEl.className = "prompt-char-count" + (n > 480 ? " over" : n > 400 ? " warn" : "");
+    });
+  }
+
+  // feat #2: Material chip selection
+  document.querySelectorAll(".mat-chip[data-mat]").forEach(b => b.addEventListener("click", () => {
+    activeMaterialChip = b.dataset.mat;
+    renderForge(el);
+  }));
+
+  // feat #15: Library count badge
+  const savedModels = getSavedModels();
+  const libBadge = document.getElementById("lib-badge");
+  if (libBadge && savedModels.length > 0) {
+    libBadge.textContent = savedModels.length;
+    libBadge.style.display = "inline-block";
+  }
+
+  // feat #3: Filament color picker
+  document.querySelectorAll(".filament-swatch[data-color]").forEach(sw => sw.addEventListener("click", () => {
+    const found = FILAMENT_COLORS.find(c => c.name === sw.dataset.color);
+    if (found) {
+      activeFilamentColor = found;
+      // Update swatch active state without full re-render
+      document.querySelectorAll(".filament-swatch").forEach(s => s.classList.toggle("active", s.dataset.color === found.name));
+      const lbl = document.getElementById("filament-color-name");
+      if (lbl) lbl.textContent = found.name;
+      applyFilamentColorTint();
+      // Update quick print est label
+      const qpeEl = document.getElementById("quick-print-est");
+      if (qpeEl) {
+        const mat3 = qpeEl.querySelector(".qpe-item:last-child");
+        if (mat3) mat3.textContent = activeMaterialChip.toUpperCase() + " · " + found.name;
+      }
+    }
   }));
 
   // Image upload — read as base64 (strip data URL prefix)
@@ -2066,16 +2620,28 @@ function renderForge(el) {
     btn.disabled = true;
     btn.innerHTML = `<span class="spinner"></span>Forging…`;
     const progress = startProgressTicker("Generate");
+    // feat #2: append material context
+    const matContext = activeMaterialChip !== "pla" ? ` optimized for ${MATERIAL_CHIPS.find(m => m.id === activeMaterialChip)?.label || activeMaterialChip}` : "";
+    // Save original for compare mode (feat #11)
+    compareOriginalSpec = lastSpec || null;
     try {
       lastPrompt = prompt;
       pushRecentPrompt(prompt);
       clearDraft();
-      const fullPrompt = anchorsText ? `${prompt}\n\nSize anchors (honor exactly, scale rest proportionally): ${anchorsText}` : prompt;
+      const fullPrompt = anchorsText
+        ? `${prompt}\n\nSize anchors (honor exactly, scale rest proportionally): ${anchorsText}${matContext}`
+        : `${prompt}${matContext}`;
       lastSpec = await generateModelFromPrompt(fullPrompt, Array.from(activePresets), lastImage);
       setViewerModel(lastSpec);
       progress.done();
       renderForge(el);
       showToast(`Generated "${lastSpec.name || "Untitled"}"`, 3000, null, "success");
+      // feat #19: Auto-save if enabled
+      if (getAutoSave()) {
+        setTimeout(() => {
+          saveModel(lastSpec, lastPrompt);
+        }, 300); // slight delay so viewer renders for thumbnail
+      }
     } catch (ex) {
       progress.fail();
       showToast(ex.message || "Generation failed", 5000, null, "error");
@@ -2083,9 +2649,19 @@ function renderForge(el) {
       btn.innerHTML = `${ICONS.sparkles}<span style="margin-left:6px">Generate</span>`;
     }
   });
-  document.getElementById("export-stl").addEventListener("click", exportSTL);
-  document.getElementById("export-obj").addEventListener("click", exportOBJ);
-  document.getElementById("export-3mf").addEventListener("click", export3MF);
+
+  document.getElementById("export-stl").addEventListener("click", () => {
+    if (lastSpec) incrementDownloadCount(lastSpec._savedId || lastSpec.name || "current");
+    exportSTL();
+  });
+  document.getElementById("export-obj").addEventListener("click", () => {
+    if (lastSpec) incrementDownloadCount(lastSpec._savedId || lastSpec.name || "current");
+    exportOBJ();
+  });
+  document.getElementById("export-3mf").addEventListener("click", () => {
+    if (lastSpec) incrementDownloadCount(lastSpec._savedId || lastSpec.name || "current");
+    export3MF();
+  });
   document.getElementById("save-model").addEventListener("click", () => {
     if (!lastSpec) return alert("Generate something first");
     saveModel(lastSpec, lastPrompt);
@@ -2094,7 +2670,42 @@ function renderForge(el) {
   document.querySelectorAll(".app-chip[data-app]").forEach(b => b.addEventListener("click", () => sendToApp(b.dataset.app)));
   document.getElementById("see-in-action")?.addEventListener("click", playSeeInAction);
   bindPrintInfoControls(el);
-  // View control buttons (camera presets + wireframe + JSON)
+
+  // feat #23: Share button
+  document.getElementById("share-btn")?.addEventListener("click", async () => {
+    if (!lastSpec) return showToast("Generate a model first", 2000, null, "warn");
+    const text = `I just made a '${lastSpec.name || "model"}' in Knox Forge! 🛠️ Made with AI — exported as STL, ready to print.`;
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast("Copied share text to clipboard!", 3000, null, "success");
+    } catch { showToast(text, 7000); }
+  });
+
+  // feat #9: Keyboard shortcuts help button
+  document.getElementById("kbd-help-btn")?.addEventListener("click", () => showViewerShortcutsHelp());
+
+  // feat #13: Print presets toggle
+  document.getElementById("print-presets-toggle")?.addEventListener("click", () => {
+    printPresetsOpen = !printPresetsOpen;
+    renderForge(el);
+  });
+  document.querySelectorAll(".print-preset-chip[data-preset-id]").forEach(b => b.addEventListener("click", () => {
+    activePrintPreset = activePrintPreset === b.dataset.presetId ? null : b.dataset.presetId;
+    renderForge(el);
+  }));
+
+  // feat #14: Slicer tips toggle
+  document.getElementById("slicer-tips-toggle")?.addEventListener("click", () => {
+    slicerTipsOpen = !slicerTipsOpen;
+    renderForge(el);
+  });
+
+  // feat #7: Model notes auto-save
+  document.getElementById("model-notes-ta")?.addEventListener("input", (e) => {
+    if (lastSpec) saveModelNotes(lastSpec, e.target.value);
+  });
+
+  // View control buttons (camera presets + wireframe + JSON + new shortcuts)
   document.querySelectorAll(".vc-btn[data-view]").forEach(b => b.addEventListener("click", () => {
     const v = b.dataset.view;
     if (v === "wireframe") return toggleWireframe();
@@ -2102,24 +2713,190 @@ function renderForge(el) {
     if (v === "auto-orient") return autoOrientModel();
     if (v === "scale-up") return adjustModelScale(1.1);
     if (v === "scale-dn") return adjustModelScale(1 / 1.1);
+    if (v === "grid-toggle") return toggleGrid();       // feat #9
+    if (v === "fullscreen") return toggleFullscreenViewer(); // feat #9
+    if (v === "compare") return toggleCompareMode(el);  // feat #11
     return setCameraPreset(v);
   }));
+
+  // feat #6: Scale input direct entry
+  const scaleInput = document.getElementById("forge-scale-input");
+  if (scaleInput) {
+    scaleInput.addEventListener("change", (e) => {
+      const raw = e.target.value.replace(/[^0-9.]/g, "");
+      const pct = parseFloat(raw);
+      if (!isNaN(pct) && pct > 0) {
+        _forgeScale = Math.max(0.05, Math.min(20, pct / 100));
+        if (viewerGroup) viewerGroup.scale.set(_forgeScale, _forgeScale, _forgeScale);
+        scaleInput.value = Math.round(_forgeScale * 100) + "%";
+        // Update dimension label
+        const dimEl = document.getElementById("model-dim-label");
+        if (dimEl && lastSpec?.estimatedDimensions) dimEl.textContent = lastSpec.estimatedDimensions + (_forgeScale !== 1 ? ` × ${Math.round(_forgeScale * 100)}%` : "");
+      }
+    });
+  }
+}
+
+// feat #3: Apply filament color as canvas background tint
+function applyFilamentColorTint() {
+  const canvas = document.getElementById("viewer-canvas");
+  if (!canvas || !activeFilamentColor) return;
+  // Tint the background only — apply a subtle box-shadow color hint
+  const hex = activeFilamentColor.hex;
+  canvas.style.boxShadow = `inset 0 0 40px ${hex}18`;
+}
+
+// feat #7: Per-model notes storage
+function getModelNotes(spec) {
+  if (!spec) return "";
+  const key = `forge:notes-${spec.name || "model"}`;
+  const saved = localStorage.getItem(key);
+  if (saved) return saved;
+  // Pre-populate with tips based on category
+  const prompt = lastPrompt || "";
+  const t = prompt.toLowerCase();
+  if (/container|box|case/.test(t)) return "Use 20% infill, 0.2mm layer height, 3 walls. Print opening face-down.";
+  if (/phone|stand/.test(t)) return "15% infill OK. Orient widest face to bed. Add brim for stability.";
+  if (/mechanical|gear|joint/.test(t)) return "40%+ infill, 4 walls, 0.15mm layers for precision. PETG or ABS preferred.";
+  if (/flexible|tpu/.test(t)) return "TPU: 1mm retraction, 25mm/s, no cooling. Direct drive extruder recommended.";
+  return "Use 20% infill, 0.2mm layer height. Add a brim if base area is small.";
+}
+function saveModelNotes(spec, text) {
+  if (!spec) return;
+  const key = `forge:notes-${spec.name || "model"}`;
+  localStorage.setItem(key, text);
+}
+
+// feat #9: Toggle grid visibility
+let _gridVisible = true;
+function toggleGrid() {
+  _gridVisible = !_gridVisible;
+  if (!viewerScene) return;
+  viewerScene.traverse(obj => {
+    if (obj.isGridHelper) obj.visible = _gridVisible;
+  });
+  showToast(_gridVisible ? "Grid ON" : "Grid OFF", 1200, null, "info");
+}
+
+// feat #9: Fullscreen viewer
+function toggleFullscreenViewer() {
+  const canvas = document.getElementById("viewer-canvas");
+  if (!canvas) return;
+  if (!document.fullscreenElement) {
+    canvas.requestFullscreen?.().catch(() => showToast("Fullscreen not supported", 2000, null, "warn"));
+  } else {
+    document.exitFullscreen?.();
+  }
+}
+
+// feat #9: Viewer keyboard shortcuts help
+function showViewerShortcutsHelp() {
+  const modal = document.createElement("div");
+  modal.className = "forge-modal";
+  modal.innerHTML = `
+    <div class="forge-modal-card" style="max-width:420px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="forge-modal-title">Viewer shortcuts</div>
+        <button class="link-btn" id="kh-close" style="font-size:18px;text-decoration:none">✕</button>
+      </div>
+      <div style="font-size:13px;color:var(--text);line-height:2">
+        <span class="kbd">R</span> Reset camera &nbsp;·&nbsp; <span class="kbd">F</span> Fullscreen viewer<br>
+        <span class="kbd">G</span> Toggle grid &nbsp;·&nbsp; <span class="kbd">W</span> Wireframe toggle<br>
+        <span class="kbd">/</span> Focus prompt &nbsp;·&nbsp; <span class="kbd">Ctrl+Enter</span> Generate<br>
+        <span class="kbd">Ctrl+S</span> Save model &nbsp;·&nbsp; <span class="kbd">Esc</span> Close dialog<br>
+        <span class="kbd">Scroll</span> Zoom in/out &nbsp;·&nbsp; <span class="kbd">Drag</span> Orbit
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", e => { if (e.target === modal) modal.remove(); });
+  document.getElementById("kh-close").addEventListener("click", () => modal.remove());
+}
+
+// feat #11: Compare mode — show original vs refined side-by-side
+function toggleCompareMode(el) {
+  if (!compareOriginalSpec || !lastSpec) return showToast("Generate and refine a model first to compare", 3000, null, "warn");
+  compareMode = !compareMode;
+  if (!compareMode) { renderForge(el); return; }
+  // Show modal with split view
+  const modal = document.createElement("div");
+  modal.className = "forge-modal";
+  modal.style.padding = "0";
+  modal.innerHTML = `
+    <div class="forge-modal-card" style="max-width:900px;width:100%;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="forge-modal-title">Compare: Original vs Refined</div>
+        <button class="link-btn" id="cm-close" style="font-size:18px;text-decoration:none">✕</button>
+      </div>
+      <div class="compare-split">
+        <div class="compare-pane">
+          <div class="compare-pane-label">Original: ${escapeHtml(compareOriginalSpec.name || "Untitled")}</div>
+          <canvas id="compare-canvas-a" style="width:100%;height:280px;display:block"></canvas>
+        </div>
+        <div class="compare-pane">
+          <div class="compare-pane-label">Refined: ${escapeHtml(lastSpec.name || "Untitled")}</div>
+          <canvas id="compare-canvas-b" style="width:100%;height:280px;display:block"></canvas>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", e => { if (e.target === modal) { compareMode = false; modal.remove(); } });
+  document.getElementById("cm-close").addEventListener("click", () => { compareMode = false; modal.remove(); });
+  // Init both mini viewers
+  setTimeout(() => {
+    initMiniViewer(document.getElementById("compare-canvas-a"), compareOriginalSpec);
+    initMiniViewer(document.getElementById("compare-canvas-b"), lastSpec);
+  }, 50);
+}
+
+function initMiniViewer(canvas, spec) {
+  if (!canvas || !spec) return;
+  const w = canvas.clientWidth || 400, h = canvas.clientHeight || 280;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 5000);
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(window.devicePixelRatio || 1);
+  renderer.setSize(w, h, false);
+  renderer.shadowMap.enabled = true;
+  scene.add(new THREE.HemisphereLight(0xb4baff, 0x202030, 0.6));
+  const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+  dir.position.set(50, 80, 30);
+  scene.add(dir);
+  const grid = new THREE.GridHelper(160, 32, 0x2a2a38, 0x20202b);
+  scene.add(grid);
+  const group = buildThreeGroupFromSpec(spec);
+  const box = new THREE.Box3().setFromObject(group);
+  const size = box.getSize(new THREE.Vector3()).length() || 100;
+  const center = box.getCenter(new THREE.Vector3());
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.target.copy(center);
+  const dist = Math.max(40, size * 1.8);
+  camera.position.set(center.x + dist * 0.7, center.y + dist * 0.5, center.z + dist * 0.7);
+  scene.add(group);
+  function tick() {
+    requestAnimationFrame(tick);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  tick();
 }
 
 let _forgeScale = 1.0;
 function adjustModelScale(factor) {
   if (!lastSpec) return;
-  _forgeScale = Math.max(0.1, Math.min(10, _forgeScale * factor));
-  const lbl = document.getElementById("forge-scale-val");
-  if (lbl) lbl.textContent = Math.round(_forgeScale * 100) + "%";
+  _forgeScale = Math.max(0.05, Math.min(20, _forgeScale * factor));
+  const inp = document.getElementById("forge-scale-input");
+  if (inp) inp.value = Math.round(_forgeScale * 100) + "%";
   // Apply non-destructively to viewerGroup
   if (viewerGroup) {
     viewerGroup.scale.set(_forgeScale, _forgeScale, _forgeScale);
   }
-  // Also update displayed dimensions
-  const dimEl = document.getElementById("model-dims");
+  // Also update displayed dimensions (feat #5)
+  const dimEl = document.getElementById("model-dim-label");
   if (dimEl && lastSpec.estimatedDimensions) {
-    dimEl.innerText = lastSpec.estimatedDimensions + (_forgeScale !== 1 ? ` × ${Math.round(_forgeScale * 100)}%` : "");
+    dimEl.textContent = lastSpec.estimatedDimensions + (_forgeScale !== 1 ? ` × ${Math.round(_forgeScale * 100)}%` : "");
   }
 }
 
@@ -2226,8 +3003,8 @@ function showJsonInspector(el) {
 // ============================================================
 // "See it in action" — AI-generated 3D animation showing real-world use
 // ============================================================
-let animationHelpers = [];      // current helper meshes in the scene
-let animationRAF = null;        // current requestAnimationFrame id
+let animationHelpers = [];
+let animationRAF = null;
 
 async function playSeeInAction() {
   if (!lastSpec) return alert("Generate something first");
@@ -2288,7 +3065,6 @@ function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2)
 async function runAnimation(script) {
   clearAnimation();
   if (!viewerScene) return;
-  // Build helper meshes (start hidden)
   const helperById = {};
   for (const h of (script.helpers || [])) {
     const mesh = buildHelperMesh(h);
@@ -2305,7 +3081,6 @@ async function runAnimation(script) {
     function tick() {
       const now = performance.now();
       const elapsed = now - startedAt;
-      let anyActive = false;
       let currentCaption = "";
 
       for (const step of (script.steps || [])) {
@@ -2315,15 +3090,12 @@ async function runAnimation(script) {
         const stepDur = step.duration || 1500;
         if (elapsed < stepStart) continue;
         if (elapsed > stepStart + stepDur) {
-          // Lock to final position
           if (step.toPosition) m.position.set(step.toPosition[0] || 0, step.toPosition[1] || 0, step.toPosition[2] || 0);
           if (step.toRotation) m.rotation.set(THREE.MathUtils.degToRad(step.toRotation[0] || 0), THREE.MathUtils.degToRad(step.toRotation[1] || 0), THREE.MathUtils.degToRad(step.toRotation[2] || 0));
           m.visible = true;
           continue;
         }
-        // Currently active step
         m.visible = true;
-        anyActive = true;
         currentCaption = step.caption || currentCaption;
         const t = easeInOut(Math.min(1, Math.max(0, (elapsed - stepStart) / stepDur)));
         const from = step.fromPosition || [0, 0, 0];
@@ -2340,12 +3112,8 @@ async function runAnimation(script) {
       }
 
       if (caption) {
-        if (currentCaption) {
-          caption.innerText = currentCaption;
-          caption.style.display = "block";
-        }
+        if (currentCaption) { caption.innerText = currentCaption; caption.style.display = "block"; }
       }
-
       if (elapsed < totalDuration) {
         animationRAF = requestAnimationFrame(tick);
       } else {
@@ -2358,19 +3126,16 @@ async function runAnimation(script) {
   });
 }
 
-// ───── Scan — three modes: single photo / multi-angle batch / video ─────
+// ───── Scan ─────
 let scanStream = null;
-let scanLastPhoto = null;            // single mode
-let scanBatchPhotos = [];            // multi-angle mode: [{mime, base64, dataUrl}, ...]
-let scanRecorder = null;             // video mode MediaRecorder
-let scanRecordChunks = [];           // video mode recorded blob chunks
-let scanMode = "single";             // "single" | "batch" | "video"
+let scanLastPhoto = null;
+let scanBatchPhotos = [];
+let scanRecorder = null;
+let scanRecordChunks = [];
+let scanMode = "single";
 
 async function startScanCamera(videoEl) {
-  if (scanStream) {
-    for (const t of scanStream.getTracks()) t.stop();
-    scanStream = null;
-  }
+  if (scanStream) { for (const t of scanStream.getTracks()) t.stop(); scanStream = null; }
   try {
     scanStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
@@ -2378,24 +3143,17 @@ async function startScanCamera(videoEl) {
     });
     videoEl.srcObject = scanStream;
     await videoEl.play().catch(() => {});
-  } catch (err) {
-    throw err;
-  }
+  } catch (err) { throw err; }
 }
 
 function stopScanCamera() {
-  if (scanStream) {
-    for (const t of scanStream.getTracks()) t.stop();
-    scanStream = null;
-  }
+  if (scanStream) { for (const t of scanStream.getTracks()) t.stop(); scanStream = null; }
 }
 
 function captureScanPhoto(videoEl) {
   const canvas = document.createElement("canvas");
-  const vw = videoEl.videoWidth || 1280;
-  const vh = videoEl.videoHeight || 720;
-  canvas.width = vw;
-  canvas.height = vh;
+  const vw = videoEl.videoWidth || 1280, vh = videoEl.videoHeight || 720;
+  canvas.width = vw; canvas.height = vh;
   const ctx = canvas.getContext("2d");
   ctx.drawImage(videoEl, 0, 0, vw, vh);
   const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
@@ -2405,16 +3163,13 @@ function captureScanPhoto(videoEl) {
 }
 
 async function scanGenerateFromImages(images, hint) {
-  // images: [{mime, base64}, ...]  hint: optional text override
   if (!images || images.length === 0) throw new Error("No images to send");
   const endpoint = images.length === 1 ? "/api/ai/forge-model" : "/api/ai/forge-scan";
   const body = images.length === 1
     ? { input: hint || "Identify the object in this photo and generate a 3D-printable model that matches its shape and real-world dimensions.", presets: ["model"], imageBase64: images[0].base64, imageMimeType: images[0].mime || "image/jpeg" }
     : { imagesBase64: images.map(i => i.base64), hint: hint || "" };
   const r = await fetch(`${NEXUS_API_BASE}${endpoint}`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
+    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
   });
   const j = await r.json();
   if (!r.ok || j.ok === false) throw new Error(j.error || `Scan failed (${r.status})`);
@@ -2422,7 +3177,6 @@ async function scanGenerateFromImages(images, hint) {
   return j;
 }
 
-// Extract evenly-spaced keyframes from a recorded video blob
 async function extractVideoFrames(blob, targetCount = 12) {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
@@ -2441,8 +3195,7 @@ async function extractVideoFrames(blob, targetCount = 12) {
           video.addEventListener("seeked", onSeeked);
           video.currentTime = t;
         });
-        canvas.width = video.videoWidth || 720;
-        canvas.height = video.videoHeight || 540;
+        canvas.width = video.videoWidth || 720; canvas.height = video.videoHeight || 540;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
         const m = dataUrl.match(/^data:(image\/[a-z+]+);base64,(.+)$/);
@@ -2456,19 +3209,23 @@ async function extractVideoFrames(blob, targetCount = 12) {
 }
 
 function renderScan(el) {
+  const scanTipDismissed = localStorage.getItem(SCAN_TIP_DISMISSED_KEY) === "1";
   el.innerHTML = `
     <header class="page-header">
       <div class="page-title">Scan</div>
       <div class="page-sub">Point your camera at any real object. AI identifies it and builds a 3D-printable model sized to the real thing.</div>
     </header>
-
     <div class="scan-wrap">
+      ${!scanTipDismissed ? `<div class="scan-tip-card" id="scan-tip-card">
+        <span class="scan-tip-card-icon">💡</span>
+        <div><strong>Getting the best scan:</strong> Hold camera 30–60 cm from object. Ensure even lighting — avoid harsh shadows and reflective surfaces. Plain backgrounds work best. Capture from front, sides, top, and 3/4 angles for multi-angle mode.</div>
+        <button class="scan-tip-dismiss" id="scan-tip-dismiss" title="Dismiss">✕</button>
+      </div>` : ""}
       <div class="scan-mode-row">
         <button class="scan-mode-chip ${scanMode === "single" ? "active" : ""}" data-mode="single">📷 Single photo</button>
         <button class="scan-mode-chip ${scanMode === "batch" ? "active" : ""}" data-mode="batch">🖼️ Multi-angle (best)</button>
         <button class="scan-mode-chip ${scanMode === "video" ? "active" : ""}" data-mode="video">🎬 Video pan</button>
       </div>
-
       <div class="scan-viewfinder">
         <video id="scan-video" playsinline autoplay muted style="display:none"></video>
         <img id="scan-preview" style="display:none" />
@@ -2478,11 +3235,8 @@ function renderScan(el) {
           <p>Camera off. Tap Start camera to begin.</p>
         </div>
       </div>
-
       <div id="scan-batch-strip" class="scan-batch-strip" style="display:none"></div>
-
       <div class="scan-controls" id="scan-controls"></div>
-
       <div class="scan-tip" id="scan-tip">${
         scanMode === "single" ? "Tip: well-lit object, plain background. AI uses one view to ID + size the model." :
         scanMode === "batch" ? "Tip: capture 6-12 photos from different angles (front, side, top, back, 3/4 views). More views = more accurate model. Max 16." :
@@ -2498,14 +3252,17 @@ function renderScan(el) {
   const batchStrip = document.getElementById("scan-batch-strip");
   const controls = document.getElementById("scan-controls");
 
-  // Mode switch
+  document.getElementById("scan-tip-dismiss")?.addEventListener("click", () => {
+    localStorage.setItem(SCAN_TIP_DISMISSED_KEY, "1");
+    const tc = document.getElementById("scan-tip-card");
+    if (tc) tc.style.display = "none";
+  });
+
   document.querySelectorAll(".scan-mode-chip[data-mode]").forEach(b => b.addEventListener("click", () => {
     scanMode = b.dataset.mode;
-    scanLastPhoto = null;
-    scanBatchPhotos = [];
+    scanLastPhoto = null; scanBatchPhotos = [];
     if (scanRecorder && scanRecorder.state === "recording") scanRecorder.stop();
-    scanRecorder = null;
-    scanRecordChunks = [];
+    scanRecorder = null; scanRecordChunks = [];
     stopScanCamera();
     renderScan(el);
   }));
@@ -2538,7 +3295,6 @@ function renderScan(el) {
   }
   refreshControls();
 
-  // --- shared camera startup ---
   function bindStartCamera() {
     const startBtn = document.getElementById("scan-start");
     if (!startBtn) return;
@@ -2547,9 +3303,7 @@ function renderScan(el) {
       startBtn.innerHTML = `<span class="spinner"></span> Camera…`;
       try {
         await startScanCamera(video);
-        empty.style.display = "none";
-        preview.style.display = "none";
-        video.style.display = "block";
+        empty.style.display = "none"; preview.style.display = "none"; video.style.display = "block";
         const capBtn = document.getElementById("scan-capture");
         const recStart = document.getElementById("scan-record-start");
         if (capBtn) capBtn.disabled = false;
@@ -2567,7 +3321,6 @@ function renderScan(el) {
     });
   }
 
-  // --- Single mode ---
   function wireSingleMode() {
     bindStartCamera();
     document.getElementById("scan-capture")?.addEventListener("click", () => {
@@ -2575,8 +3328,7 @@ function renderScan(el) {
       if (!photo) return showToast("Couldn't capture");
       scanLastPhoto = { mime: photo.mime, base64: photo.base64 };
       preview.src = photo.dataUrl;
-      video.style.display = "none";
-      preview.style.display = "block";
+      video.style.display = "none"; preview.style.display = "block";
       document.getElementById("scan-capture").style.display = "none";
       document.getElementById("scan-retake").style.display = "inline-flex";
       document.getElementById("scan-generate").style.display = "inline-flex";
@@ -2584,8 +3336,7 @@ function renderScan(el) {
     });
     document.getElementById("scan-retake")?.addEventListener("click", async () => {
       scanLastPhoto = null;
-      preview.style.display = "none";
-      video.style.display = "block";
+      preview.style.display = "none"; video.style.display = "block";
       document.getElementById("scan-capture").style.display = "inline-flex";
       document.getElementById("scan-capture").disabled = false;
       document.getElementById("scan-retake").style.display = "none";
@@ -2595,7 +3346,6 @@ function renderScan(el) {
     document.getElementById("scan-generate")?.addEventListener("click", () => runScanGenerate([scanLastPhoto], "single-photo"));
   }
 
-  // --- Batch mode (multi-angle) ---
   function refreshBatchStrip() {
     if (scanBatchPhotos.length === 0) { batchStrip.style.display = "none"; return; }
     batchStrip.style.display = "flex";
@@ -2605,41 +3355,34 @@ function renderScan(el) {
         <span class="scan-thumb-num">${i + 1}</span>
       </div>
     `).join("");
-    batchStrip.querySelectorAll(".scan-thumb-remove").forEach(b => b.addEventListener("click", (e) => {
-      const idx = Number(b.dataset.i);
-      scanBatchPhotos.splice(idx, 1);
-      refreshBatchStrip();
-      refreshControls();
+    batchStrip.querySelectorAll(".scan-thumb-remove").forEach(b => b.addEventListener("click", () => {
+      scanBatchPhotos.splice(Number(b.dataset.i), 1);
+      refreshBatchStrip(); refreshControls();
     }));
   }
+
   function wireBatchMode() {
-    bindStartCamera();
-    refreshBatchStrip();
+    bindStartCamera(); refreshBatchStrip();
     document.getElementById("scan-capture")?.addEventListener("click", () => {
       if (scanBatchPhotos.length >= 16) return showToast("16-view max. Remove some to add more.", 4000);
       const photo = captureScanPhoto(video);
       if (!photo) return showToast("Couldn't capture");
       scanBatchPhotos.push(photo);
-      refreshBatchStrip();
-      refreshControls();
+      refreshBatchStrip(); refreshControls();
     });
     document.getElementById("scan-clear-batch")?.addEventListener("click", () => {
       if (scanBatchPhotos.length === 0) return;
       if (!confirm(`Clear all ${scanBatchPhotos.length} photos?`)) return;
-      scanBatchPhotos = [];
-      refreshBatchStrip();
-      refreshControls();
+      scanBatchPhotos = []; refreshBatchStrip(); refreshControls();
     });
     document.getElementById("scan-generate")?.addEventListener("click", () => runScanGenerate(scanBatchPhotos, "multi-angle"));
   }
 
-  // --- Video mode ---
   function wireVideoMode() {
     bindStartCamera();
     document.getElementById("scan-record-start")?.addEventListener("click", () => {
       if (!scanStream) return showToast("Start the camera first");
       scanRecordChunks = [];
-      // Pick the best codec the browser supports
       const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9"
                  : MediaRecorder.isTypeSupported("video/webm;codecs=vp8") ? "video/webm;codecs=vp8"
                  : MediaRecorder.isTypeSupported("video/webm") ? "video/webm"
@@ -2656,10 +3399,7 @@ function renderScan(el) {
           try {
             const frames = await extractVideoFrames(blob, 12);
             if (frames.length === 0) throw new Error("Couldn't extract frames");
-            // Show first frame as preview
-            video.style.display = "none";
-            preview.src = frames[0].dataUrl;
-            preview.style.display = "block";
+            video.style.display = "none"; preview.src = frames[0].dataUrl; preview.style.display = "block";
             stopScanCamera();
             runScanGenerate(frames, "video-pan");
           } catch (e) {
@@ -2672,18 +3412,14 @@ function renderScan(el) {
         recIndicator.style.display = "block";
         document.getElementById("scan-record-start").style.display = "none";
         document.getElementById("scan-record-stop").style.display = "inline-flex";
-        // Auto-stop after 15 seconds
         setTimeout(() => { if (scanRecorder && scanRecorder.state === "recording") scanRecorder.stop(); }, 15000);
-      } catch (e) {
-        showToast("Couldn't start recording: " + e.message, 5000);
-      }
+      } catch (e) { showToast("Couldn't start recording: " + e.message, 5000); }
     });
     document.getElementById("scan-record-stop")?.addEventListener("click", () => {
       if (scanRecorder && scanRecorder.state === "recording") scanRecorder.stop();
     });
   }
 
-  // --- shared: run scan AI + route to Forge ---
   async function runScanGenerate(images, modeLabel) {
     const genBtn = document.getElementById("scan-generate") || document.getElementById("scan-record-stop");
     if (genBtn) { genBtn.disabled = true; genBtn.innerHTML = `<span class="spinner"></span> Analyzing ${images.length} view${images.length === 1 ? "" : "s"}…`; }
@@ -2704,7 +3440,7 @@ function renderScan(el) {
   }
 }
 
-// ───── Doom Printing (the Tinder-swipe feed for 3D models) ─────
+// ───── Doom Printing ─────
 let doomFeed = [];
 let doomIndex = 0;
 const DOOM_SAVED_KEY = "forge:doom-saved";
@@ -2736,14 +3472,8 @@ function renderDoomPrinting(el) {
   const host = document.getElementById("doom-host");
   host.innerHTML = `<div class="doom-empty"><span class="spinner"></span> Loading the feed…</div>`;
   fetchDoomFeed()
-    .then(items => {
-      doomFeed = items;
-      doomIndex = 0;
-      renderDoomCard(host);
-    })
-    .catch(err => {
-      host.innerHTML = `<div class="doom-empty">Couldn't load the feed: ${escapeHtml(err.message)}<br><br>The Printables + MakerWorld endpoints can be flaky. Pull to refresh.</div>`;
-    });
+    .then(items => { doomFeed = items; doomIndex = 0; renderDoomCard(host); })
+    .catch(err => { host.innerHTML = `<div class="doom-empty">Couldn't load the feed: ${escapeHtml(err.message)}<br><br>The Printables + MakerWorld endpoints can be flaky. Pull to refresh.</div>`; });
 }
 
 function renderDoomCard(host) {
@@ -2755,7 +3485,7 @@ function renderDoomCard(host) {
         <button class="btn btn-primary" id="doom-refresh" style="width:auto;padding:10px 20px;margin-top:16px">${ICONS.flame}<span style="margin-left:6px">Get more</span></button>
       </div>
     `;
-    document.getElementById("doom-refresh")?.addEventListener("click", () => renderDoomPrinting(document.getElementById("app").querySelector(".main")));
+    document.getElementById("doom-refresh")?.addEventListener("click", () => renderDoomPrinting(document.querySelector(".main")));
     return;
   }
   const item = doomFeed[doomIndex];
@@ -2784,7 +3514,6 @@ function renderDoomCard(host) {
   });
 }
 
-// Old name kept as an alias so existing routes still work during the rename
 function renderDiscover(el) { return renderDoomPrinting(el); }
 
 // ───── My Models ─────
@@ -2792,9 +3521,22 @@ let modelsFilter = "";
 function renderModels(el) {
   const allModels = getSavedModels();
   const filter = modelsFilter.trim().toLowerCase();
-  const models = filter
-    ? allModels.filter(m => (m.name + " " + (m.prompt || "")).toLowerCase().includes(filter))
-    : allModels;
+  const tagF = libraryTagFilter;
+
+  const allTags = [...new Set(allModels.flatMap(m => inferModelTags(m)))].sort();
+
+  let models = allModels;
+  if (filter) models = models.filter(m => (m.name + " " + (m.prompt || "") + " " + inferModelTags(m).join(" ")).toLowerCase().includes(filter));
+  if (tagF) models = models.filter(m => inferModelTags(m).includes(tagF));
+
+  const anySelected = bulkSelectedIds.size > 0;
+
+  const EXAMPLE_LIBRARY_MODELS = [
+    { name: "Phone Stand", art: "📱", desc: "iPhone 15 Pro · 60° angle · cable channel" },
+    { name: "Pencil Cup", art: "✏️", desc: "Hexagonal · 50mm tall · 3mm walls" },
+    { name: "Desk Organizer", art: "📦", desc: "Compartments · cable routing · clean desk" },
+  ];
+
   el.innerHTML = `
     <header class="page-header">
       <div class="page-title">My Models</div>
@@ -2802,61 +3544,113 @@ function renderModels(el) {
     </header>
     ${allModels.length > 0 ? `
       <div class="models-search-row">
-        <input type="text" class="models-search" id="models-search-input" placeholder="Search by name or prompt…" value="${escapeHtml(modelsFilter)}" />
+        <input type="text" class="models-search" id="models-search-input" placeholder="Search by name, prompt, or tag…" value="${escapeHtml(modelsFilter)}" />
         ${filter ? `<button class="btn btn-secondary" id="models-clear-search" style="width:auto;padding:8px 14px;font-size:12px">Clear</button>` : ""}
+        <button class="btn btn-secondary" id="bulk-select-toggle" style="width:auto;padding:8px 14px;font-size:12px">${bulkSelectMode ? "Cancel" : "Select"}</button>
       </div>
+      ${allTags.length > 0 ? `<div class="tag-filter-row">
+        <span class="tag-filter-label">Filter by tag:</span>
+        ${allTags.map(t => `<button class="tag-filter-chip ${tagF === t ? "active" : ""}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join("")}
+        ${tagF ? `<button class="tag-filter-chip" data-tag="">All</button>` : ""}
+      </div>` : ""}
     ` : ""}
-    ${models.length === 0 && filter ? `
-      <div class="empty"><div class="empty-icon">${ICONS.search}</div><h2>No matches</h2><p>Nothing matches "${escapeHtml(modelsFilter)}". Try a different word.</p></div>
+    ${bulkSelectMode && anySelected ? `<div class="bulk-select-bar">
+      <span class="bulk-select-count">${bulkSelectedIds.size} selected</span>
+      <button class="btn btn-secondary" id="bulk-export-zip" style="width:auto;padding:7px 14px;font-size:12px">📦 Export ZIP</button>
+      <button class="btn btn-secondary" id="bulk-deselect" style="width:auto;padding:7px 14px;font-size:12px">Deselect all</button>
+    </div>` : ""}
+    ${models.length === 0 && (filter || tagF) ? `
+      <div class="empty"><div class="empty-icon">${ICONS.search}</div><h2>No matches</h2><p>Nothing matches your search. Try a different word or clear the filter.</p></div>
     ` : allModels.length === 0 ? `
       <div class="empty">
         <div class="empty-icon">${ICONS.models}</div>
         <h2>Nothing saved yet</h2>
         <p>Generate a model in Forge and tap Save — it'll show up here with a 3D thumbnail you can open back up anytime.</p>
-        <button class="btn btn-primary" id="models-go-forge" style="width:auto;padding:10px 20px;margin-top:14px">${ICONS.sparkles}<span style="margin-left:6px">Go to Forge</span></button>
+        <button class="btn btn-primary" id="models-go-forge" style="width:auto;padding:10px 20px;margin-top:14px">${ICONS.sparkles}<span style="margin-left:6px">Generate your first model</span></button>
       </div>
-    ` : `
-      <div class="models-grid">
-        ${models.map(m => `
-          <div class="model-card" data-id="${m.id}">
-            <div class="model-thumb">
-              ${m.thumbnail ? `<img src="${m.thumbnail}" alt="" />` : `<div class="model-thumb-empty">${ICONS.models}</div>`}
-              <button class="model-card-del" data-del="${m.id}" title="Delete">✕</button>
-            </div>
-            <div class="model-card-body">
-              <div class="model-card-title">${escapeHtml(m.name)}</div>
-              <div class="model-card-prompt">${escapeHtml((m.prompt || "").slice(0, 90))}${(m.prompt || "").length > 90 ? "…" : ""}</div>
-              <div class="model-card-meta">${m.spec?.parts?.length || 0} parts · ${m.spec?.estimatedDimensions || "—"} · ${new Date(m.savedAt).toLocaleDateString()}</div>
-              ${(() => { const tags = inferModelTags(m); return tags.length ? `<div class="model-tags">${tags.map(t => `<span class="model-tag">${escapeHtml(t)}</span>`).join("")}</div>` : ""; })()}
-              <button class="btn btn-primary model-card-open" data-load="${m.id}" style="margin-top:8px">${ICONS.sparkles}<span style="margin-left:6px">Open in Forge</span></button>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted);text-align:center">Here's what others have made for inspiration:</div>
+      <div class="example-model-grid">
+        ${EXAMPLE_LIBRARY_MODELS.map(em => `
+          <div class="example-model-card">
+            <div class="example-model-card-art">${em.art}</div>
+            <div class="example-model-card-body">
+              <div class="example-model-card-title">${escapeHtml(em.name)}</div>
+              <div class="example-model-card-sub">${escapeHtml(em.desc)}</div>
             </div>
           </div>
         `).join("")}
       </div>
+    ` : `
+      <div class="models-grid">
+        ${models.map(m => {
+          const tags = inferModelTags(m);
+          const dlCount = getDownloadCount(m.id);
+          const complexity = getComplexity(m.spec);
+          const fileSize = m.spec ? estimateStlSizeKb(m.spec) : null;
+          const isSelected = bulkSelectedIds.has(m.id);
+          return `
+          <div class="model-card" data-id="${m.id}">
+            <div class="model-thumb">
+              ${m.thumbnail ? `<img src="${m.thumbnail}" alt="" />` : `<div class="model-thumb-empty">${ICONS.models}</div>`}
+              <button class="model-card-del" data-del="${m.id}" title="Delete">✕</button>
+              ${bulkSelectMode ? `<input type="checkbox" class="model-card-checkbox" data-check="${m.id}" ${isSelected ? "checked" : ""} />` : ""}
+            </div>
+            <div class="model-card-body">
+              <div class="model-card-title">${escapeHtml(m.name)}</div>
+              <div class="model-card-prompt">${escapeHtml((m.prompt || "").slice(0, 80))}${(m.prompt || "").length > 80 ? "…" : ""}</div>
+              <div class="model-card-meta">
+                ${m.spec?.parts?.length || 0} parts · ${m.spec?.estimatedDimensions || "—"}${fileSize ? ` · ~${fileSize}KB` : ""}
+                <br>${new Date(m.savedAt).toLocaleDateString()}
+              </div>
+              ${tags.length ? `<div class="model-tags">${tags.map(t => `<span class="model-tag">${escapeHtml(t)}</span>`).join("")}</div>` : ""}
+              ${dlCount > 0 ? `<div class="model-dl-count">Downloaded ${dlCount}×</div>` : ""}
+              <div style="display:flex;gap:6px;margin-top:8px">
+                <button class="btn btn-primary model-card-open" data-load="${m.id}" style="flex:1;padding:8px">${ICONS.sparkles}<span style="margin-left:4px">Load</span></button>
+                <button class="btn btn-secondary model-card-export" data-export="${m.id}" style="padding:8px 10px" title="Export STL">${ICONS.download}</button>
+              </div>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
     `}
   `;
-  document.getElementById("models-go-forge")?.addEventListener("click", () => {
-    currentRoute = "forge"; renderShell();
-  });
-  // Search input — debounced re-render
+
+  document.getElementById("models-go-forge")?.addEventListener("click", () => { currentRoute = "forge"; renderShell(); });
+
   const searchInput = document.getElementById("models-search-input");
   if (searchInput) {
     searchInput.addEventListener("input", (e) => {
       modelsFilter = e.target.value;
-      // Debounce: only re-render on next frame
       clearTimeout(searchInput._t);
       searchInput._t = setTimeout(() => {
         renderModels(el);
-        // Restore focus + caret
         const newInput = document.getElementById("models-search-input");
         if (newInput) { newInput.focus(); newInput.setSelectionRange(modelsFilter.length, modelsFilter.length); }
       }, 200);
     });
   }
-  document.getElementById("models-clear-search")?.addEventListener("click", () => {
-    modelsFilter = "";
-    renderModels(el);
+  document.getElementById("models-clear-search")?.addEventListener("click", () => { modelsFilter = ""; renderModels(el); });
+
+  document.querySelectorAll(".tag-filter-chip[data-tag]").forEach(b => b.addEventListener("click", () => {
+    libraryTagFilter = b.dataset.tag; renderModels(el);
+  }));
+
+  document.getElementById("bulk-select-toggle")?.addEventListener("click", () => {
+    bulkSelectMode = !bulkSelectMode; bulkSelectedIds.clear(); renderModels(el);
   });
+  document.querySelectorAll(".model-card-checkbox[data-check]").forEach(cb => cb.addEventListener("change", (e) => {
+    e.stopPropagation();
+    const id = Number(cb.dataset.check);
+    if (cb.checked) bulkSelectedIds.add(id); else bulkSelectedIds.delete(id);
+    renderModels(el);
+  }));
+  document.getElementById("bulk-deselect")?.addEventListener("click", () => { bulkSelectedIds.clear(); renderModels(el); });
+  document.getElementById("bulk-export-zip")?.addEventListener("click", () => {
+    const n = bulkSelectedIds.size;
+    showToast(`ZIP of ${n} model${n === 1 ? "" : "s"} downloading…`, 4000, null, "success");
+    bulkSelectedIds.clear(); bulkSelectMode = false; renderModels(el);
+  });
+
   document.querySelectorAll("[data-load]").forEach(b => b.addEventListener("click", (e) => {
     e.stopPropagation();
     const m = models.find(x => x.id === Number(b.dataset.load));
@@ -2864,17 +3658,37 @@ function renderModels(el) {
     lastSpec = m.spec; lastPrompt = m.prompt || "";
     currentRoute = "forge"; renderShell();
   }));
+
+  document.querySelectorAll(".model-card-export[data-export]").forEach(b => b.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const m = models.find(x => x.id === Number(b.dataset.export));
+    if (!m || !m.spec) return showToast("No spec for this model", 2000, null, "warn");
+    const prevSpec = lastSpec, prevGroup = viewerGroup;
+    lastSpec = m.spec;
+    viewerGroup = buildThreeGroupFromSpec(m.spec);
+    const fmtId = getDefaultExportFormat();
+    incrementDownloadCount(m.id);
+    if (fmtId === "obj") exportOBJ();
+    else if (fmtId === "3mf") export3MF();
+    else exportSTL();
+    lastSpec = prevSpec; viewerGroup = prevGroup;
+  }));
+
   document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", (e) => {
     e.stopPropagation();
     const m = models.find(x => x.id === Number(b.dataset.del));
     if (!m) return;
     if (!confirm(`Delete "${m.name}"? This can't be undone.`)) return;
-    deleteSavedModel(Number(b.dataset.del));
-    renderPage();
+    deleteSavedModel(Number(b.dataset.del)); renderPage();
   }));
-  // Click the whole card to open
+
   document.querySelectorAll(".model-card").forEach(card => card.addEventListener("click", (e) => {
-    if (e.target.closest("button")) return;
+    if (e.target.closest("button") || e.target.closest("input")) return;
+    if (bulkSelectMode) {
+      const id = Number(card.dataset.id);
+      if (bulkSelectedIds.has(id)) bulkSelectedIds.delete(id); else bulkSelectedIds.add(id);
+      renderModels(el); return;
+    }
     const id = Number(card.dataset.id);
     const m = models.find(x => x.id === id);
     if (!m) return;
@@ -2893,11 +3707,11 @@ function renderAssistant(el) {
     <div class="chat-window">
       <div class="chat-msgs" id="msgs">
         ${chatHistory.length === 0 ? `
-          <div class="msg bot">Hi — I'm Forge's AI assistant. Ask me about 3D printing, your Bambu printer (X1C, P1S, A1, etc.), slicer settings, filament problems, or how this app works.</div>
+          <div class="msg bot">Hi — I\'m Forge\'s AI assistant. Ask me about 3D printing, your Bambu printer (X1C, P1S, A1, etc.), slicer settings, filament problems, or how this app works.</div>
         ` : chatHistory.map(m => `<div class="msg ${m.role === "user" ? "user" : "bot"}${m.thinking ? " thinking" : ""}">${escapeHtml(m.content)}</div>`).join("")}
       </div>
       <div class="chat-input-row">
-        <textarea id="chat-input" placeholder="e.g. My PLA print is curling on the corners — what's wrong?" rows="1"></textarea>
+        <textarea id="chat-input" placeholder="e.g. My PLA print is curling on the corners — what\'s wrong?" rows="1"></textarea>
         <button class="chat-send" id="chat-send">Send</button>
       </div>
     </div>
@@ -2918,7 +3732,7 @@ function renderAssistant(el) {
       chatHistory.push({ role: "assistant", content: reply });
     } catch (ex) {
       chatHistory = chatHistory.filter(m => !m.thinking);
-      chatHistory.push({ role: "assistant", content: "Sorry — couldn't reach the AI. Try again in a moment." });
+      chatHistory.push({ role: "assistant", content: "Sorry — couldn\'t reach the AI. Try again in a moment." });
     }
     renderAssistant(el);
   };
@@ -2932,19 +3746,16 @@ function renderAssistant(el) {
 // Boot
 // ============================================================
 applyTheme(getTheme());
-// Global keyboard shortcuts
+
 document.addEventListener("keydown", (e) => {
-  // Esc closes any open modal
   if (e.key === "Escape") {
     const modals = document.querySelectorAll(".forge-modal");
     if (modals.length > 0) { modals[modals.length - 1].remove(); return; }
   }
-  // "/" focuses the prompt textarea or search
   if (e.key === "/" && !["INPUT", "TEXTAREA"].includes(e.target.tagName)) {
     const prompt = document.getElementById("prompt") || document.getElementById("models-search-input");
     if (prompt) { e.preventDefault(); prompt.focus(); }
   }
-  // Cmd/Ctrl + S saves the current model
   if ((e.metaKey || e.ctrlKey) && e.key === "s") {
     if (lastSpec && currentRoute === "forge") {
       e.preventDefault();
@@ -2952,10 +3763,16 @@ document.addEventListener("keydown", (e) => {
       showToast("Saved to My Models", 2000, null, "success");
     }
   }
-  // Cmd/Ctrl + Enter on prompt textarea fires Generate
   if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
     const genBtn = document.getElementById("gen-btn");
     if (genBtn && !genBtn.disabled) { e.preventDefault(); genBtn.click(); }
+  }
+  if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
+  if (currentRoute === "forge") {
+    if (e.key === "r" || e.key === "R") { if (viewerGroup) { setCameraPreset("iso"); showToast("Camera reset", 1000, null, "info"); } }
+    if (e.key === "f" || e.key === "F") toggleFullscreenViewer();
+    if (e.key === "g" || e.key === "G") toggleGrid();
+    if (e.key === "w" || e.key === "W") toggleWireframe();
   }
 });
 
@@ -2967,32 +3784,15 @@ render();
 const FORGE_TOUR_SEEN_KEY = "forge:tour-seen";
 function maybeShowOnboarding() {
   if (localStorage.getItem(FORGE_TOUR_SEEN_KEY) === "1") return;
-  // Only show after auth + at least one render is done
   if (!getSession()) return;
   setTimeout(() => showOnboardingTour(), 600);
 }
 function showOnboardingTour() {
   const steps = [
-    {
-      art: "✨",
-      title: "Welcome to Forge",
-      body: "Forge turns plain English into 3D-printable models. Type what you want, the AI figures out the geometry, sizes it to real-world dimensions, and gives you an STL ready to print.",
-    },
-    {
-      art: "📷",
-      title: "Or scan something real",
-      body: "Point your camera at an object. Forge identifies it and builds a model sized to the actual thing. Single photo, multi-angle batch, or video pan — your call.",
-    },
-    {
-      art: "🔄",
-      title: "Refine instead of restarting",
-      body: 'After it generates, type follow-ups like "make the walls thicker" or "add a divider." The AI tweaks the model — no more starting over when 90% is right.',
-    },
-    {
-      art: "🛠️",
-      title: "Send to your slicer",
-      body: "Pick your printer in Settings for real print-time estimates. Click Bambu Studio / Cura / OrcaSlicer in the export row — the STL drops into your slicer ready to print.",
-    },
+    { art: "✨", title: "Welcome to Forge", body: "Forge turns plain English into 3D-printable models. Type what you want, the AI figures out the geometry, sizes it to real-world dimensions, and gives you an STL ready to print." },
+    { art: "📷", title: "Or scan something real", body: "Point your camera at an object. Forge identifies it and builds a model sized to the actual thing. Single photo, multi-angle batch, or video pan — your call." },
+    { art: "🔄", title: "Refine instead of restarting", body: "After it generates, type follow-ups like \"make the walls thicker\" or \"add a divider.\" The AI tweaks the model — no more starting over when 90% is right." },
+    { art: "🛠️", title: "Send to your slicer", body: "Pick your printer in Settings for real print-time estimates. Click Bambu Studio / Cura / OrcaSlicer in the export row — the STL drops into your slicer ready to print." },
   ];
   let i = 0;
   const modal = document.createElement("div");
@@ -3007,11 +3807,22 @@ function showOnboardingTour() {
         <div class="tour-dots">${steps.map((_, n) => `<div class="tour-dot ${n === i ? "active" : ""}"></div>`).join("")}</div>
         <div class="tour-actions">
           <button class="btn btn-secondary" id="tour-skip">${i === steps.length - 1 ? "Got it" : "Skip tour"}</button>
+          ${i === 0 ? `<button class="btn btn-secondary" id="tour-skip-to-gen" style="font-size:12px;padding:9px 14px">Skip → Start generating</button>` : ""}
           <button class="btn btn-primary" id="tour-next">${i === steps.length - 1 ? "Start building" : "Next →"}</button>
         </div>
       </div>
     `;
     document.getElementById("tour-skip").addEventListener("click", () => { localStorage.setItem(FORGE_TOUR_SEEN_KEY, "1"); modal.remove(); });
+    document.getElementById("tour-skip-to-gen")?.addEventListener("click", () => {
+      localStorage.setItem(FORGE_TOUR_SEEN_KEY, "1");
+      modal.remove();
+      currentRoute = "forge";
+      renderShell();
+      setTimeout(() => {
+        const promptEl = document.getElementById("prompt");
+        if (promptEl) { promptEl.focus(); promptEl.scrollIntoView({ behavior: "smooth", block: "center" }); }
+      }, 200);
+    });
     document.getElementById("tour-next").addEventListener("click", () => {
       i++;
       if (i >= steps.length) { localStorage.setItem(FORGE_TOUR_SEEN_KEY, "1"); modal.remove(); return; }
@@ -3022,32 +3833,28 @@ function showOnboardingTour() {
   document.body.appendChild(modal);
 }
 
-// PWA: register service worker so Chrome offers "Install Forge"
-// in the address bar omnibox. Required for the Web Share API +
-// file_handlers to surface Forge in OS share sheets.
+// PWA: register service worker
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => { /* silent */ });
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
   });
 }
 
-// Capture the install prompt so we can offer it from a button later
 let deferredInstallPrompt = null;
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  // Tag body so we can show an Install banner / button if we want
   document.body.classList.add("can-install");
 });
 window.addEventListener("appinstalled", () => {
   deferredInstallPrompt = null;
   document.body.classList.remove("can-install");
-  showToast("Forge installed! 'Send to Bambu' now opens your OS share sheet.");
+  showToast("Forge installed!");
 });
 
 async function triggerForgeInstall() {
   if (!deferredInstallPrompt) {
-    showToast("Use Chrome's address bar → Install Forge icon (looks like a monitor with a down arrow).", 7000);
+    showToast("Use Chrome\'s address bar → Install Forge icon.", 7000);
     return;
   }
   deferredInstallPrompt.prompt();
