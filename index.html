@@ -146,6 +146,7 @@
   .examples-label { font-size: 12px; color: var(--muted); margin-right: 4px; }
   .example-chip { background: rgba(124,92,255,0.08); border: 1px solid rgba(124,92,255,0.25); border-radius: 999px; padding: 6px 12px; font-size: 12px; color: var(--text); cursor: pointer; transition: all 0.12s; font-family: inherit; }
   .example-chip:hover { background: rgba(124,92,255,0.18); border-color: var(--primary); }
+  .example-chip.active { background: rgba(124,92,255,0.25); border-color: var(--primary); color: var(--primary-2); }
   /* Refine shell — appears below the prompt-shell after a model exists */
   .refine-shell { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 14px 18px; margin-top: 14px; }
   .refine-label { display: flex; align-items: center; font-size: 13px; margin-bottom: 10px; }
@@ -935,6 +936,8 @@ function setViewerModel(spec) {
   viewerCamera.position.set(center.x + dist * 0.7, center.y + dist * 0.5, center.z + dist * 0.7);
   viewerCamera.near = size / 100; viewerCamera.far = size * 10; viewerCamera.updateProjectionMatrix();
   viewerScene.add(viewerGroup);
+  // Apply current filament color immediately after building the group
+  applyFilamentColorTint();
 }
 
 function modelFilename(ext) {
@@ -2147,6 +2150,17 @@ const EXAMPLE_PROMPTS = [
   "Modular drawer divider, 40mm tall",
 ];
 
+// Category prompt chips — quick fill by category
+const CATEGORY_PROMPTS = {
+  "🏠 Home": ["Wall hook for keys, 80mm wide", "Soap dish with drainage, 90×65mm", "Bathroom shelf bracket, 200mm span", "Cabinet knob, round, 30mm diameter"],
+  "💻 Desk":  ["Monitor stand riser, 300mm wide, 80mm tall", "Cable clip for desk edge, holds 3 cables", "Pen holder, hexagonal, 80mm tall", "Laptop stand, foldable, 15.6in support"],
+  "🎮 Gaming": ["Controller stand for Xbox/PS5", "Headset wall hanger, sturdy hook", "Cable winder for gaming headset", "Joystick dust cap for PS5 thumbsticks"],
+  "🍳 Kitchen": ["Spice jar lid, 50mm diameter, stackable", "Egg cup, 45mm interior diameter", "Knife block slot insert, 20mm wide", "Fruit bowl stand, 200mm diameter"],
+  "🌿 Garden": ["Seed label stake, 150mm tall", "Hose clip for 20mm hose", "Planter drainage foot, 60mm wide", "Trowel handle grip, ergonomic"],
+  "🔧 Tools":  ["Drill bit organizer, holds 10 bits", "Hex key stand, 9 positions", "Level holder for wall mount", "Screw tray, 5 compartments, magnetic base"],
+};
+let activeCategoryChip = null;
+
 // Material selector options (feat #2)
 const MATERIAL_CHIPS = [
   { id: "pla",   label: "PLA",   desc: "Standard — easy to print, biodegradable" },
@@ -2356,6 +2370,15 @@ function renderForge(el) {
         <div class="examples-label">Try one of these:</div>
         ${EXAMPLE_PROMPTS.map(p => `<button class="example-chip" data-example="${escapeHtml(p)}">${escapeHtml(p)}</button>`).join("")}
       </div>` : ""}
+      <div style="margin-top:8px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Browse by category:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px" id="cat-chips-row">
+          ${Object.keys(CATEGORY_PROMPTS).map(cat => `<button class="example-chip cat-chip ${activeCategoryChip === cat ? "active" : ""}" data-cat="${escapeHtml(cat)}">${escapeHtml(cat)}</button>`).join("")}
+        </div>
+        <div id="cat-prompts-row" style="${activeCategoryChip ? "" : "display:none"};display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;padding:8px 10px;background:var(--card-2);border-radius:10px;border:1px solid var(--border-soft)">
+          ${activeCategoryChip ? CATEGORY_PROMPTS[activeCategoryChip].map(p => `<button class="example-chip" data-example="${escapeHtml(p)}">${escapeHtml(p)}</button>`).join("") : ""}
+        </div>
+      </div>
       <div class="preset-row" id="presets">
         ${PRESETS.map(p => `<button class="preset-chip ${activePresets.has(p) ? "active" : ""}" data-preset="${escapeHtml(p)}">${escapeHtml(p)}</button>`).join("")}
       </div>
@@ -2594,6 +2617,33 @@ function renderForge(el) {
     document.getElementById("prompt").value = b.dataset.example;
     document.getElementById("prompt").focus();
   }));
+  // Category chips
+  document.querySelectorAll(".cat-chip[data-cat]").forEach(b => b.addEventListener("click", () => {
+    const cat = b.dataset.cat;
+    if (activeCategoryChip === cat) {
+      activeCategoryChip = null;
+    } else {
+      activeCategoryChip = cat;
+    }
+    // Update chips active state
+    document.querySelectorAll(".cat-chip").forEach(c => c.classList.toggle("active", c.dataset.cat === activeCategoryChip));
+    // Show/hide prompts row
+    const row = document.getElementById("cat-prompts-row");
+    if (row) {
+      if (activeCategoryChip) {
+        row.style.display = "flex";
+        row.innerHTML = CATEGORY_PROMPTS[activeCategoryChip].map(p => `<button class="example-chip" data-example="${escapeHtml(p)}">${escapeHtml(p)}</button>`).join("");
+        // Re-wire the new chips
+        row.querySelectorAll("[data-example]").forEach(x => x.addEventListener("click", () => {
+          document.getElementById("prompt").value = x.dataset.example;
+          document.getElementById("prompt").focus();
+        }));
+      } else {
+        row.style.display = "none";
+        row.innerHTML = "";
+      }
+    }
+  }));
   // Refine input handlers
   document.querySelectorAll(".refine-suggestion[data-suggest]").forEach(b => b.addEventListener("click", () => {
     const input = document.getElementById("refine-input");
@@ -2737,13 +2787,24 @@ function renderForge(el) {
   }
 }
 
-// feat #3: Apply filament color as canvas background tint
+// feat #3: Apply filament color directly to the 3D model materials
 function applyFilamentColorTint() {
   const canvas = document.getElementById("viewer-canvas");
   if (!canvas || !activeFilamentColor) return;
-  // Tint the background only — apply a subtle box-shadow color hint
+  // Apply a subtle ambient glow to match the filament
   const hex = activeFilamentColor.hex;
   canvas.style.boxShadow = `inset 0 0 40px ${hex}18`;
+  // Traverse the viewer group and update all mesh material colors
+  if (viewerGroup) {
+    viewerGroup.traverse((obj) => {
+      if (obj.isMesh && obj.material) {
+        // Skip transparent ghost parts (subtracted geometry)
+        if (obj.material.opacity < 0.8) return;
+        // Parse hex to THREE.Color
+        obj.material.color.set(hex);
+      }
+    });
+  }
 }
 
 // feat #7: Per-model notes storage
@@ -3606,6 +3667,7 @@ function renderModels(el) {
               ${dlCount > 0 ? `<div class="model-dl-count">Downloaded ${dlCount}×</div>` : ""}
               <div style="display:flex;gap:6px;margin-top:8px">
                 <button class="btn btn-primary model-card-open" data-load="${m.id}" style="flex:1;padding:8px">${ICONS.sparkles}<span style="margin-left:4px">Load</span></button>
+                <button class="btn btn-secondary model-card-remix" data-remix="${m.id}" style="padding:8px 10px" title="Remix — edit this prompt in Forge">↻</button>
                 <button class="btn btn-secondary model-card-export" data-export="${m.id}" style="padding:8px 10px" title="Export STL">${ICONS.download}</button>
               </div>
             </div>
@@ -3657,6 +3719,20 @@ function renderModels(el) {
     if (!m) return;
     lastSpec = m.spec; lastPrompt = m.prompt || "";
     currentRoute = "forge"; renderShell();
+  }));
+
+  document.querySelectorAll(".model-card-remix[data-remix]").forEach(b => b.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const m = models.find(x => x.id === Number(b.dataset.remix));
+    if (!m) return;
+    lastPrompt = m.prompt || "";
+    currentRoute = "forge"; renderShell();
+    // Pre-fill the prompt textarea after render
+    requestAnimationFrame(() => {
+      const pa = document.getElementById("prompt");
+      if (pa) { pa.value = lastPrompt; pa.focus(); }
+    });
+    showToast("Prompt loaded — tweak and re-Forge ↻", 2500, null, "info");
   }));
 
   document.querySelectorAll(".model-card-export[data-export]").forEach(b => b.addEventListener("click", (e) => {
